@@ -2,10 +2,13 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Database, History, HelpCircle, Info } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import UserProfile from './UserProfile';
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
 
   const navItems = [
     { path: '/', label: 'Home', icon: Database },
@@ -46,6 +49,18 @@ const Navigation = () => {
                 <span>{item.label}</span>
               </Link>
             ))}
+            
+            {/* User Profile or Auth Button */}
+            {user ? (
+              <UserProfile />
+            ) : (
+              <Link
+                to="/auth"
+                className="bg-gradient-to-r from-neon-blue to-neon-violet hover:from-neon-violet hover:to-neon-blue px-4 py-2 rounded-lg text-white font-medium transition-all duration-300"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -75,6 +90,21 @@ const Navigation = () => {
                 <span>{item.label}</span>
               </Link>
             ))}
+            
+            {/* Mobile User Profile or Auth */}
+            <div className="mt-4 p-3">
+              {user ? (
+                <UserProfile />
+              ) : (
+                <Link
+                  to="/auth"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="block w-full text-center bg-gradient-to-r from-neon-blue to-neon-violet hover:from-neon-violet hover:to-neon-blue px-4 py-2 rounded-lg text-white font-medium transition-all duration-300"
+                >
+                  Sign In
+                </Link>
+              )}
+            </div>
           </div>
         )}
       </div>
