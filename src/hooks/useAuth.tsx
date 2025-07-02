@@ -1,7 +1,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { supabase, isDevelopmentMode } from '@/lib/supabase';
 import { toast } from '@/hooks/use-toast';
 
 interface AuthContextType {
@@ -19,6 +19,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (isDevelopmentMode) {
+      // Mock user for development
+      setUser({
+        id: 'dev-user',
+        email: 'demo@example.com',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        aud: 'authenticated',
+        role: 'authenticated',
+        app_metadata: {},
+        user_metadata: {}
+      } as User);
+      setLoading(false);
+      return;
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -37,6 +53,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    if (isDevelopmentMode) {
+      toast({
+        title: "Development Mode",
+        description: "Connect to Supabase for real authentication",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -58,6 +83,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signUp = async (email: string, password: string) => {
+    if (isDevelopmentMode) {
+      toast({
+        title: "Development Mode",  
+        description: "Connect to Supabase for real authentication",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -79,6 +113,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signOut = async () => {
+    if (isDevelopmentMode) {
+      setUser(null);
+      toast({
+        title: "Signed Out",
+        description: "You have been signed out from development mode.",
+      });
+      return;
+    }
+
     const { error } = await supabase.auth.signOut();
     
     if (error) {

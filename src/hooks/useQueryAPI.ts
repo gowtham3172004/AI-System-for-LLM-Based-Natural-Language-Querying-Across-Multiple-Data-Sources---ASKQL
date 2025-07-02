@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, isDevelopmentMode } from '@/lib/supabase';
 import { toast } from '@/hooks/use-toast';
 
 interface QueryResult {
@@ -15,6 +15,13 @@ export const useQueryAPI = () => {
   const generateSQL = async (naturalLanguageQuery: string, tableSchema?: any): Promise<string | null> => {
     setIsLoading(true);
     try {
+      if (isDevelopmentMode) {
+        // Mock SQL generation
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const mockSQL = `SELECT * FROM ${tableSchema?.table_name || 'data'} LIMIT 10`;
+        return mockSQL;
+      }
+
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         throw new Error('Not authenticated');
@@ -48,6 +55,17 @@ export const useQueryAPI = () => {
   const executeQuery = async (sqlQuery: string, fileId?: string): Promise<QueryResult | null> => {
     setIsLoading(true);
     try {
+      if (isDevelopmentMode) {
+        // Mock query execution
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const mockResult = [
+          { id: 1, name: 'Sample Data 1', value: 100 },
+          { id: 2, name: 'Sample Data 2', value: 200 },
+          { id: 3, name: 'Sample Data 3', value: 300 }
+        ];
+        return { result: mockResult, row_count: mockResult.length };
+      }
+
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         throw new Error('Not authenticated');
@@ -81,6 +99,30 @@ export const useQueryAPI = () => {
   const uploadFile = async (file: File): Promise<any | null> => {
     setIsLoading(true);
     try {
+      if (isDevelopmentMode) {
+        // Mock file upload
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        const mockSchema = {
+          table_name: file.name.replace(/\.[^/.]+$/, ""),
+          columns: [
+            { name: 'id', type: 'INTEGER' },
+            { name: 'name', type: 'TEXT' },
+            { name: 'value', type: 'NUMERIC' }
+          ]
+        };
+        
+        toast({
+          title: "Demo Mode",
+          description: "File upload simulated. Connect to Supabase for real uploads."
+        });
+
+        return {
+          file_id: 'demo-file-id',
+          filename: file.name,
+          schema: mockSchema
+        };
+      }
+
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         throw new Error('Not authenticated');
@@ -118,6 +160,20 @@ export const useQueryAPI = () => {
 
   const getSchema = async (fileId: string): Promise<any | null> => {
     try {
+      if (isDevelopmentMode) {
+        return {
+          filename: 'demo.csv',
+          schema: {
+            table_name: 'demo',
+            columns: [
+              { name: 'id', type: 'INTEGER' },
+              { name: 'name', type: 'TEXT' },
+              { name: 'value', type: 'NUMERIC' }
+            ]
+          }
+        };
+      }
+
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         throw new Error('Not authenticated');
