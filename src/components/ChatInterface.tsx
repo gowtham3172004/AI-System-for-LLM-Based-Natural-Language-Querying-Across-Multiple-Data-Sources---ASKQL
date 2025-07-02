@@ -1,22 +1,28 @@
 
-import { useState } from 'react';
-import { Send, Copy, Play, Bot, User, Code } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Send, Copy, Play, Bot, User, Code, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
+import { useQueryAPI } from '@/hooks/useQueryAPI';
+import QueryResultsTable from './QueryResultsTable';
+import FileUploadModal from './FileUploadModal';
 
 interface Message {
   id: string;
   type: 'user' | 'bot';
   content: string;
   query?: string;
+  result?: any[];
   timestamp: Date;
 }
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<any>(null);
+  const [showFileUpload, setShowFileUpload] = useState(false);
+  const { generateSQL, executeQuery, isLoading } = useQueryAPI();
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
@@ -29,25 +35,37 @@ const ChatInterface = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentQuery = inputValue;
     setInputValue('');
-    setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const botMessage: Message = {
+    try {
+      // Generate SQL using Gemini API
+      const sql = await generateSQL(currentQuery, uploadedFile?.schema);
+      
+      if (sql) {
+        // Execute the query
+        const queryResult = await executeQuery(sql, uploadedFile?.file_id);
+        
+        const botMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          type: 'bot',
+          content: `Here's the SQL query I generated for your question: "${currentQuery}"`,
+          query: sql,
+          result: queryResult?.result,
+          timestamp: new Date(),
+        };
+
+        setMessages(prev => [...prev, botMessage]);
+      }
+    } catch (error) {
+      const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content: `I'll help you analyze your data. Based on your question: "${inputValue}", here's the SQL query I generated:`,
-        query: `SELECT region, SUM(sales) as total_sales 
-FROM sales_data 
-GROUP BY region 
-ORDER BY total_sales DESC;`,
+        content: 'Sorry, I encountered an error processing your request. Please try again.',
         timestamp: new Date(),
       };
-
-      setMessages(prev => [...prev, botMessage]);
-      setIsLoading(false);
-    }, 1500);
+      setMessages(prev => [...prev, errorMessage]);
+    }
   };
 
   const copyQuery = (query: string) => {
@@ -58,10 +76,21 @@ ORDER BY total_sales DESC;`,
     });
   };
 
-  const runQuery = (query: string) => {
+  const runQuery = async (query: string) => {
+    const result = await executeQuery(query, uploadedFile?.file_id);
+    if (result) {
+      toast({
+        title: "Query executed!",
+        description: `Returned ${result.row_count} rows`,
+      });
+    }
+  };
+
+  const handleFileUploaded = (fileData: any) => {
+    setUploadedFile(fileData);
     toast({
-      title: "Query executed!",
-      description: "Running query against your data source...",
+      title: "File connected!",
+      description: `${fileData.filename} is ready for querying`,
     });
   };
 
@@ -73,9 +102,24 @@ ORDER BY total_sales DESC;`,
             Start Asking Questions
           </h2>
           <p className="text-gray-400 text-lg">
-            Type your questions in plain English and watch the magic happen
+            {uploadedFile ? `Querying: ${uploadedFile.filename}` : 'Upload a file or connect a database to get started'}
           </p>
         </div>
+
+        {/* File Connection Status */}
+        {!uploadedFile && (
+          <div className="bg-dark-surface rounded-2xl border border-dark-border p-6 mb-6 text-center">
+            <Upload className="w-12 h-12 mx-auto mb-4 text-neon-blue" />
+            <p className="text-gray-300 mb-4">No data source connected</p>
+            <Button
+              onClick={() => setShowFileUpload(true)}
+              className="bg-gradient-to-r from-neon-blue to-neon-cyan hover:from-neon-cyan hover:to-neon-blue transition-all"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Upload File
+            </Button>
+          </div>
+        )}
 
         {/* Chat Messages */}
         <div className="bg-dark-surface rounded-2xl border border-dark-border p-6 mb-6 min-h-[400px] max-h-[600px] overflow-y-auto">
@@ -141,6 +185,12 @@ ORDER BY total_sales DESC;`,
                           </pre>
                         </div>
                       )}
+
+                      {message.result && (
+                        <div className="mt-4">
+                          <QueryResultsTable data={message.result} sql={message.query} />
+                        </div>
+                      )}
                       
                       <p className="text-xs text-gray-500 mt-2">
                         {message.timestamp.toLocaleTimeString()}
@@ -176,13 +226,14 @@ ORDER BY total_sales DESC;`,
             <Input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Ask something like: 'Show me total sales by region'"
+              placeholder={uploadedFile ? "Ask something like: 'Show me total sales by region'" : "Connect a data source first"}
               className="flex-1 bg-dark-elevated border-dark-border text-white placeholder-gray-400 rounded-xl px-6 py-4 text-lg focus:border-neon-blue focus:ring-neon-blue/20"
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              disabled={!uploadedFile || isLoading}
             />
             <Button
               onClick={handleSendMessage}
-              disabled={!inputValue.trim() || isLoading}
+              disabled={!inputValue.trim() || !uploadedFile || isLoading}
               className="bg-gradient-to-r from-neon-blue to-neon-cyan hover:from-neon-cyan hover:to-neon-blue rounded-xl px-8 py-4 text-lg font-semibold transition-all duration-300 transform hover:scale-105 disabled:opacity-50"
             >
               <Send className="w-5 h-5" />
@@ -194,6 +245,12 @@ ORDER BY total_sales DESC;`,
             <span>Powered by Gemini AI • Press Enter to send</span>
           </div>
         </div>
+
+        <FileUploadModal 
+          open={showFileUpload} 
+          onOpenChange={setShowFileUpload}
+          onFileUploaded={handleFileUploaded}
+        />
       </div>
     </section>
   );
