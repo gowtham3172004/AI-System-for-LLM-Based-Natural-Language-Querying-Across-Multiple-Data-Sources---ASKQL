@@ -1,103 +1,91 @@
 
+import { useState } from 'react';
+import { Upload, Database, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Database, Upload, MessageSquare, BarChart3, AlertCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { isDevelopmentMode } from '@/lib/supabase';
+import FileUploadModal from './FileUploadModal';
+import DatabaseConnectionModal from './DatabaseConnectionModal';
 
 const HeroSection = () => {
-  const navigate = useNavigate();
+  const [showFileUpload, setShowFileUpload] = useState(false);
+  const [showDatabaseConnection, setShowDatabaseConnection] = useState(false);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="max-w-6xl mx-auto text-center">
-        {/* Development Mode Notice */}
-        {isDevelopmentMode && (
-          <div className="mb-8 p-4 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
-            <div className="flex items-center justify-center mb-2">
-              <AlertCircle className="w-5 h-5 text-yellow-400 mr-2" />
-              <span className="text-yellow-400 font-semibold">Development Mode</span>
-            </div>
-            <p className="text-yellow-200 text-sm">
-              Connect to Supabase for full functionality. Currently running with demo data.
-            </p>
-          </div>
-        )}
-
-        {/* Hero Content */}
-        <div className="mb-8">
-          <div className="w-20 h-20 bg-gradient-to-r from-neon-blue to-neon-cyan rounded-3xl flex items-center justify-center mx-auto mb-6">
-            <Database className="w-10 h-10 text-white" />
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            Query Your Data with
-            <span className="bg-gradient-to-r from-neon-blue to-neon-cyan bg-clip-text text-transparent block">
-              Natural Language
-            </span>
-          </h1>
-          <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
-            Transform your questions into powerful SQL queries instantly. Upload your CSV files and start exploring your data like never before.
-          </p>
+    <section className="relative py-20 px-4 text-center overflow-hidden">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-neon-blue/10 via-transparent to-neon-violet/10" />
+      
+      {/* Animated background elements */}
+      <div className="absolute top-20 left-10 w-32 h-32 bg-neon-cyan/20 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-20 right-10 w-40 h-40 bg-neon-violet/20 rounded-full blur-3xl animate-pulse delay-1000" />
+      
+      <div className="relative max-w-4xl mx-auto">
+        <div className="flex items-center justify-center mb-6">
+          <Sparkles className="w-8 h-8 text-neon-blue mr-3 animate-pulse" />
+          <span className="text-neon-blue font-medium">AI-Powered Data Querying</span>
+        </div>
+        
+        <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-neon-blue to-neon-violet bg-clip-text text-transparent leading-tight">
+          Ask Anything About Your Data
+        </h1>
+        
+        <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+          Upload your file or connect your database, then ask questions in plain English. 
+          Our AI will generate SQL queries and deliver instant insights.
+        </p>
+        
+        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
           <Button
-            onClick={() => navigate('/auth')}
+            onClick={() => setShowFileUpload(true)}
             size="lg"
-            className="bg-gradient-to-r from-neon-blue to-neon-cyan hover:from-neon-cyan hover:to-neon-blue text-white font-semibold px-8 py-4 text-lg"
+            className="group bg-gradient-to-r from-neon-blue to-neon-cyan hover:from-neon-cyan hover:to-neon-blue transition-all duration-300 transform hover:scale-105 px-8 py-4 rounded-xl text-lg font-semibold shadow-lg hover:shadow-neon-blue/25"
           >
-            Get Started Free
+            <Upload className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
+            Upload CSV or Excel File
+          </Button>
+          
+          <Button
+            onClick={() => setShowDatabaseConnection(true)}
+            size="lg"
+            variant="outline"
+            className="group border-neon-violet text-neon-violet hover:bg-neon-violet hover:text-dark-bg transition-all duration-300 transform hover:scale-105 px-8 py-4 rounded-xl text-lg font-semibold glow-border"
+          >
+            <Database className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
+            Connect to Database
           </Button>
         </div>
-
-        {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
-          <Card className="bg-dark-surface border-dark-border">
-            <CardContent className="p-6 text-center">
-              <Upload className="w-12 h-12 text-neon-blue mb-4 mx-auto" />
-              <h3 className="text-xl font-semibold text-white mb-2">Easy Upload</h3>
-              <p className="text-gray-400">
-                Simply drag and drop your CSV files. We'll automatically detect the schema and structure.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-dark-surface border-dark-border">
-            <CardContent className="p-6 text-center">
-              <MessageSquare className="w-12 h-12 text-neon-cyan mb-4 mx-auto" />
-              <h3 className="text-xl font-semibold text-white mb-2">Natural Queries</h3>
-              <p className="text-gray-400">
-                Ask questions in plain English. Our AI converts them to perfect SQL queries automatically.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-dark-surface border-dark-border">
-            <CardContent className="p-6 text-center">
-              <BarChart3 className="w-12 h-12 text-neon-blue mb-4 mx-auto" />
-              <h3 className="text-xl font-semibold text-white mb-2">Instant Results</h3>
-              <p className="text-gray-400">
-                Get beautifully formatted results in seconds. Export, analyze, and share your insights.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Example Queries */}
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-white mb-6">Try These Example Queries</h2>
-          <div className="grid md:grid-cols-2 gap-4">
-            {[
-              "Show me all records where sales > 1000",
-              "Find the top 10 customers by revenue", 
-              "What's the average order value by month?",
-              "List all products with low inventory"
-            ].map((query, index) => (
-              <div key={index} className="bg-dark-elevated p-4 rounded-lg border border-dark-border">
-                <p className="text-gray-300 italic">"{query}"</p>
-              </div>
-            ))}
+        
+        {/* Feature highlights */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="bg-dark-surface/50 backdrop-blur rounded-xl p-6 border border-dark-border hover:border-neon-blue/50 transition-all group">
+            <div className="w-12 h-12 bg-gradient-to-r from-neon-blue to-neon-cyan rounded-lg flex items-center justify-center mb-4 group-hover:animate-pulse">
+              <Sparkles className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-2">Natural Language</h3>
+            <p className="text-gray-400">Ask questions like "Show me total sales by region" and get instant SQL queries</p>
+          </div>
+          
+          <div className="bg-dark-surface/50 backdrop-blur rounded-xl p-6 border border-dark-border hover:border-neon-violet/50 transition-all group">
+            <div className="w-12 h-12 bg-gradient-to-r from-neon-violet to-neon-pink rounded-lg flex items-center justify-center mb-4 group-hover:animate-pulse">
+              <Database className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-2">Multiple Sources</h3>
+            <p className="text-gray-400">Connect to databases or upload CSV/Excel files for instant data analysis</p>
+          </div>
+          
+          <div className="bg-dark-surface/50 backdrop-blur rounded-xl p-6 border border-dark-border hover:border-neon-green/50 transition-all group">
+            <div className="w-12 h-12 bg-gradient-to-r from-neon-green to-neon-cyan rounded-lg flex items-center justify-center mb-4 group-hover:animate-pulse">
+              <Upload className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-2">Instant Results</h3>
+            <p className="text-gray-400">Get formatted results with export options and query history tracking</p>
           </div>
         </div>
       </div>
-    </div>
+      
+      {/* Modals */}
+      <FileUploadModal open={showFileUpload} onOpenChange={setShowFileUpload} />
+      <DatabaseConnectionModal open={showDatabaseConnection} onOpenChange={setShowDatabaseConnection} />
+    </section>
   );
 };
 
