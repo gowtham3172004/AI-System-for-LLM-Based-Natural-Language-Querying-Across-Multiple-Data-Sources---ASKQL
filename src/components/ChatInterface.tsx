@@ -4,6 +4,7 @@ import { Send, Copy, Play, Bot, User, Code } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
@@ -28,26 +29,56 @@ const ChatInterface = () => {
       timestamp: new Date(),
     };
 
+    const currentQuestion = inputValue;
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-sql', {
+        body: {
+          question: currentQuestion,
+          executeQuery: false
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to generate SQL query');
+      }
+
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content: `I'll help you analyze your data. Based on your question: "${inputValue}", here's the SQL query I generated:`,
-        query: `SELECT region, SUM(sales) as total_sales 
-FROM sales_data 
-GROUP BY region 
-ORDER BY total_sales DESC;`,
+        content: data.explanation || `Here's the SQL query for your question: "${currentQuestion}"`,
+        query: data.sqlQuery || data.response,
         timestamp: new Date(),
       };
 
       setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      console.error('Error generating SQL:', error);
+      
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'bot',
+        content: `Sorry, I encountered an error while processing your question. Please try again or rephrase your question.`,
+        timestamp: new Date(),
+      };
+
+      setMessages(prev => [...prev, errorMessage]);
+      
+      toast({
+        title: "Error",
+        description: "Failed to generate SQL query. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const copyQuery = (query: string) => {
