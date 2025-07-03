@@ -11,6 +11,8 @@ interface Message {
   type: 'user' | 'bot';
   content: string;
   query?: string;
+  results?: any;
+  mode?: string;
   timestamp: Date;
 }
 
@@ -18,6 +20,7 @@ const ChatInterface = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [activeDataSource, setActiveDataSource] = useState<any>(null);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;

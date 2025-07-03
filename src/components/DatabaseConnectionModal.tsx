@@ -11,9 +11,10 @@ import { toast } from '@/hooks/use-toast';
 interface DatabaseConnectionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onDatabaseConnected?: (connectionInfo: any) => void;
 }
 
-const DatabaseConnectionModal = ({ open, onOpenChange }: DatabaseConnectionModalProps) => {
+const DatabaseConnectionModal = ({ open, onOpenChange, onDatabaseConnected }: DatabaseConnectionModalProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [formData, setFormData] = useState({

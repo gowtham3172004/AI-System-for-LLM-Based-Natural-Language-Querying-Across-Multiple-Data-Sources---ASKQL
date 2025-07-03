@@ -8,9 +8,10 @@ import { toast } from '@/hooks/use-toast';
 interface FileUploadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onFileUploaded?: (file: File, data: any[]) => void;
 }
 
-const FileUploadModal = ({ open, onOpenChange }: FileUploadModalProps) => {
+const FileUploadModal = ({ open, onOpenChange, onFileUploaded }: FileUploadModalProps) => {
   const [dragActive, setDragActive] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -35,21 +36,35 @@ const FileUploadModal = ({ open, onOpenChange }: FileUploadModalProps) => {
     }
   };
 
-  const handleFiles = (file: File) => {
+  const handleFiles = async (file: File) => {
     const validTypes = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
     
     if (validTypes.includes(file.type) || file.name.endsWith('.csv') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
       setIsUploading(true);
       
-      // Simulate upload
-      setTimeout(() => {
+      try {
+        // Parse the file content
+        const data = await parseFileContent(file);
         setUploadedFile(file);
         setIsUploading(false);
+        
         toast({
           title: "File uploaded successfully!",
-          description: `${file.name} is ready for querying`,
+          description: `${file.name} is ready for querying (${data.length} rows)`,
         });
-      }, 2000);
+        
+        // Call the callback with parsed data
+        if (onFileUploaded) {
+          onFileUploaded(file, data);
+        }
+      } catch (error) {
+        setIsUploading(false);
+        toast({
+          title: "Error parsing file",
+          description: "Failed to parse the file content. Please check the format.",
+          variant: "destructive",
+        });
+      }
     } else {
       toast({
         title: "Invalid file type",
@@ -57,6 +72,50 @@ const FileUploadModal = ({ open, onOpenChange }: FileUploadModalProps) => {
         variant: "destructive",
       });
     }
+  };
+
+  const parseFileContent = async (file: File): Promise<any[]> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        try {
+          const content = e.target?.result as string;
+          
+          if (file.name.endsWith('.csv')) {
+            // Parse CSV
+            const lines = content.split('\n').filter(line => line.trim());
+            if (lines.length < 2) {
+              reject(new Error('CSV file must have at least header and one data row'));
+              return;
+            }
+            
+            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+            const data = lines.slice(1).map(line => {
+              const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+              const row: any = {};
+              headers.forEach((header, index) => {
+                const value = values[index] || '';
+                // Try to parse as number, otherwise keep as string
+                row[header] = isNaN(Number(value)) ? value : Number(value);
+              });
+              return row;
+            });
+            
+            resolve(data);
+          } else {
+            // For Excel files, we'll simulate parsing for now
+            // In a real implementation, you'd use a library like xlsx
+            reject(new Error('Excel parsing not implemented in this demo'));
+          }
+        } catch (error) {
+          reject(error);
+        }
+      };
+      
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsText(file);
+    });
   };
 
   const handleConnect = () => {

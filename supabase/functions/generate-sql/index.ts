@@ -11,6 +11,133 @@ interface GenerateSQLRequest {
   question: string;
   schema?: string;
   executeQuery?: boolean;
+  mode?: 'general' | 'educational' | 'schema-aware' | 'execute';
+  tableData?: any[];
+  fileName?: string;
+}
+
+// Simple SQL query executor for array data
+function executeQueryOnData(sqlQuery: string, data: any[], fileName?: string): any {
+  console.log('Executing query:', sqlQuery);
+  console.log('Data sample:', data.slice(0, 2));
+  
+  // Simple query parser for basic SELECT statements
+  const query = sqlQuery.toLowerCase().trim();
+  
+  // Extract table name from filename or use 'data'
+  const tableName = fileName ? fileName.replace(/\.(csv|xlsx|xls)$/i, '').toLowerCase() : 'data';
+  
+  // Basic SELECT query parsing
+  if (!query.startsWith('select')) {
+    throw new Error('Only SELECT queries are supported');
+  }
+  
+  let result = [...data];
+  
+  // Parse WHERE clause
+  const whereMatch = query.match(/where\s+(.+?)(?:\s+order\s+by|\s+group\s+by|\s+limit|$)/);
+  if (whereMatch) {
+    const whereClause = whereMatch[1].trim();
+    result = result.filter(row => evaluateWhereClause(row, whereClause));
+  }
+  
+  // Parse column selection
+  const selectMatch = query.match(/select\s+(.+?)\s+from/);
+  if (selectMatch) {
+    const columns = selectMatch[1].trim();
+    if (columns !== '*') {
+      const columnList = columns.split(',').map(col => col.trim().replace(/['"]/g, ''));
+      result = result.map(row => {
+        const newRow: any = {};
+        columnList.forEach(col => {
+          // Handle column aliases and find matching keys
+          const matchingKey = Object.keys(row).find(key => 
+            key.toLowerCase().includes(col.toLowerCase()) || 
+            col.toLowerCase().includes(key.toLowerCase())
+          );
+          if (matchingKey) {
+            newRow[matchingKey] = row[matchingKey];
+          }
+        });
+        return newRow;
+      });
+    }
+  }
+  
+  // Parse ORDER BY
+  const orderMatch = query.match(/order\s+by\s+(.+?)(?:\s+limit|$)/);
+  if (orderMatch) {
+    const orderClause = orderMatch[1].trim();
+    const [column, direction = 'asc'] = orderClause.split(/\s+/);
+    const matchingKey = Object.keys(data[0] || {}).find(key => 
+      key.toLowerCase().includes(column.toLowerCase())
+    );
+    
+    if (matchingKey) {
+      result.sort((a, b) => {
+        const aVal = a[matchingKey];
+        const bVal = b[matchingKey];
+        const comparison = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+        return direction.toLowerCase() === 'desc' ? -comparison : comparison;
+      });
+    }
+  }
+  
+  // Parse LIMIT
+  const limitMatch = query.match(/limit\s+(\d+)/);
+  if (limitMatch) {
+    const limit = parseInt(limitMatch[1]);
+    result = result.slice(0, limit);
+  }
+  
+  return {
+    query: sqlQuery,
+    totalRows: result.length,
+    data: result.slice(0, 100), // Limit display to 100 rows
+    executedAt: new Date().toISOString()
+  };
+}
+
+// Simple WHERE clause evaluator
+function evaluateWhereClause(row: any, whereClause: string): boolean {
+  // Handle simple conditions like "column > value", "column = 'value'", etc.
+  const conditions = whereClause.split(/\s+and\s+|\s+or\s+/i);
+  
+  for (const condition of conditions) {
+    const match = condition.match(/(\w+)\s*(>=|<=|>|<|=|!=)\s*(.+)/);
+    if (match) {
+      const [, column, operator, value] = match;
+      const cleanValue = value.replace(/['"]/g, '').trim();
+      
+      // Find matching column key
+      const matchingKey = Object.keys(row).find(key => 
+        key.toLowerCase().includes(column.toLowerCase())
+      );
+      
+      if (matchingKey) {
+        const rowValue = row[matchingKey];
+        const numericValue = parseFloat(cleanValue);
+        const isNumeric = !isNaN(numericValue);
+        
+        switch (operator) {
+          case '>':
+            return isNumeric ? parseFloat(rowValue) > numericValue : rowValue > cleanValue;
+          case '<':
+            return isNumeric ? parseFloat(rowValue) < numericValue : rowValue < cleanValue;
+          case '>=':
+            return isNumeric ? parseFloat(rowValue) >= numericValue : rowValue >= cleanValue;
+          case '<=':
+            return isNumeric ? parseFloat(rowValue) <= numericValue : rowValue <= cleanValue;
+          case '=':
+            return isNumeric ? parseFloat(rowValue) === numericValue : rowValue.toString().toLowerCase() === cleanValue.toLowerCase();
+          case '!=':
+            return isNumeric ? parseFloat(rowValue) !== numericValue : rowValue.toString().toLowerCase() !== cleanValue.toLowerCase();
+        }
+      }
+    }
+  }
+  
+  return true; // Default to include row if condition can't be parsed
 }
 
 serve(async (req) => {
@@ -20,64 +147,129 @@ serve(async (req) => {
   }
 
   try {
-    const { question, schema, executeQuery = false }: GenerateSQLRequest = await req.json();
+    const { question, schema, executeQuery = false, mode = 'general', tableData, fileName }: GenerateSQLRequest = await req.json();
     
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiApiKey) {
       throw new Error('GEMINI_API_KEY not found in environment variables');
     }
 
-    // System prompt from user requirements
-    const systemPrompt = `You are AskQL — an intelligent and safe AI assistant that translates natural language questions into accurate SQL queries and can return queried data if a data source is connected.
+    // Enhanced system prompt for different modes
+    let systemPrompt = `You are AskQL — an intelligent and versatile AI assistant that helps users with SQL queries and data analysis.
 
-### 🎯 Your Purpose:
-Help users interact with structured data (like databases, CSV, or Excel files) using natural language. You will generate SQL queries based on user questions, or if requested, directly return the query result using the connected data source.
+### 🎯 Your Capabilities:
+1. **General Conversation**: Answer friendly greetings and general questions about SQL/databases
+2. **SQL Education**: Provide SQL query examples and explanations for learning
+3. **Schema-Aware Queries**: Generate precise queries using connected database/file schemas
+4. **Data Analysis**: Execute queries and return actual results from connected data sources
 
-### 🧠 Key Behaviors:
-1. Generate clean, correct, and optimized SQL queries.
-2. Use the provided schema if available.
-3. Handle multiple table joins, filters, aggregates, and conditions.
-4. Avoid hallucinating table or column names — use schema info if available.
-5. Always prefer standard SQL syntax (PostgreSQL-flavored if unsure).
-6. Format queries with indentation and readable structure.
+### 🧠 Response Guidelines:
 
-### 💡 When Schema Is Provided:
-- Use it strictly.
-- Never guess or create column/table names not listed in the schema.
+**For General Greetings/Chat:**
+- Be friendly and helpful
+- If asked about non-SQL topics, politely explain your SQL/database focus
+- Examples: "Hi there! I'm AskQL, ready to help with your SQL queries and data questions!"
 
-### 🧾 When Data Is Connected:
-- Assume the backend will execute the query you return.
-- Return only valid SQL or requested results.
+**For SQL Educational Questions:**
+- Provide clear, well-formatted SQL examples
+- Include explanations of syntax and concepts
+- Use realistic but generic table/column names
 
-### 🗃️ If the user uploads a file or connects a database:
-- Expect table and column names to be based on schema extraction.
-- If user asks questions about the data (e.g., "show me the students with marks > 80"), generate the correct SQL query to fetch the results.
+**For Schema-Aware Queries:**
+- Use ONLY the provided schema/column names
+- Never hallucinate table or column names
+- Generate precise, executable queries
 
-### 🧪 When asked to "run", "execute", or "get answer":
-- Return the SQL AND provide an explanation if needed.
-- Allow the backend to execute the query and return result data.
+**For Data Execution:**
+- Analyze the question and connected data structure
+- Generate the exact query needed
+- Return both the query and the actual results
 
-### ✅ Format of Your Output:
-If user only asks for SQL:
+### ✅ Response Formats:
+
+**General Response:**
+Just provide a helpful, conversational answer.
+
+**Educational SQL:**
 \`\`\`sql
--- SQL for question: {user_question}
-SELECT ...
-FROM ...
-WHERE ...
+-- Example: {description}
+SELECT column_name
+FROM table_name
+WHERE condition;
+\`\`\`
+Explanation: {clear explanation}
+
+**Schema-Aware Query:**
+\`\`\`sql
+-- Query for: {user_question}
+SELECT {actual_columns}
+FROM {actual_table}
+WHERE {actual_conditions};
 \`\`\`
 
-When generating SQL, focus on correctness and clarity. Always provide a brief explanation of what the query does.`;
+**Data Results:**
+\`\`\`sql
+-- Query executed: {user_question}
+{actual_query}
+\`\`\`
 
-    let prompt = `User Question: "${question}"`;
+Results:
+{formatted_results}`;
+
+    // Determine the mode and adjust prompt accordingly
+    let prompt = '';
     
-    if (schema) {
-      prompt += `\n\nDatabase Schema:\n${schema}`;
-    }
-    
-    if (executeQuery) {
-      prompt += `\n\nPlease generate the SQL query and explain what it does.`;
+    if (mode === 'execute' && tableData && tableData.length > 0) {
+      // Execute mode with actual data
+      const sampleData = tableData.slice(0, 3); // Show first few rows as sample
+      const columns = Object.keys(tableData[0] || {});
+      
+      systemPrompt += `\n\n### 🔍 Current Context:
+- You have access to actual data from: ${fileName || 'uploaded file'}
+- Available columns: ${columns.join(', ')}
+- Sample data structure: ${JSON.stringify(sampleData, null, 2)}
+- Total rows: ${tableData.length}
+
+**IMPORTANT**: Generate the SQL query AND execute it against this data to provide actual results.`;
+
+      prompt = `User Question: "${question}"
+      
+Connected Data: ${fileName || 'User uploaded file'}
+Columns: ${columns.join(', ')}
+Total Records: ${tableData.length}
+
+Please analyze the question, generate the appropriate SQL query, execute it against the provided data, and return both the query and the actual results.`;
+
+    } else if (schema) {
+      // Schema-aware mode
+      systemPrompt += `\n\n### 📋 Database Schema Available:
+Use this schema strictly. Do not create or assume any table/column names not listed here.`;
+      
+      prompt = `User Question: "${question}"
+
+Database Schema:
+${schema}
+
+Generate a precise SQL query using only the provided schema. Explain what the query does.`;
+
     } else {
-      prompt += `\n\nPlease generate only the SQL query for this question.`;
+      // General or educational mode
+      const isGreeting = /^(hi|hello|hey|good morning|good afternoon|good evening)/i.test(question.trim());
+      const isSQLQuestion = /\b(sql|query|select|database|table|join|where|group by|order by)\b/i.test(question);
+      
+      if (isGreeting) {
+        prompt = `User said: "${question}"
+        
+Please respond in a friendly, welcoming way and introduce yourself as AskQL, ready to help with SQL queries and data analysis.`;
+      } else if (isSQLQuestion) {
+        prompt = `User Question: "${question}"
+        
+This appears to be an SQL educational question. Provide helpful SQL examples, syntax explanations, or query patterns that address their question. Use realistic but generic table/column names for examples.`;
+      } else {
+        prompt = `User Question: "${question}"
+        
+This question seems to be outside the SQL/database domain. Politely explain that you specialize in SQL queries and database analysis, and ask if they have any SQL-related questions instead.`;
+      }
     }
 
     console.log('Sending request to Gemini API...');
@@ -146,12 +338,25 @@ When generating SQL, focus on correctness and clarity. Always provide a brief ex
     // Extract explanation (everything outside SQL blocks)
     const explanation = generatedText.replace(/```sql\n.*?\n```/s, '').trim();
 
+    // Execute query against table data if in execute mode
+    let queryResults = null;
+    if (mode === 'execute' && sqlQuery && tableData && tableData.length > 0) {
+      try {
+        queryResults = executeQueryOnData(sqlQuery, tableData, fileName);
+      } catch (error) {
+        console.error('Query execution error:', error);
+        queryResults = { error: `Query execution failed: ${error.message}` };
+      }
+    }
+
     return new Response(JSON.stringify({
       success: true,
       response: generatedText,
       sqlQuery,
-      explanation: explanation || "Here's the SQL query for your question.",
-      schema: schema || null
+      explanation: explanation || "Here's the response to your question.",
+      schema: schema || null,
+      results: queryResults,
+      mode
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
