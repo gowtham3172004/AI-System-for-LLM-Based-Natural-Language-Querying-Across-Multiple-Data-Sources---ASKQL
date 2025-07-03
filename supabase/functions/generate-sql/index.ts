@@ -4,6 +4,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
 interface GenerateSQLRequest {
@@ -27,7 +28,7 @@ serve(async (req) => {
     }
 
     // System prompt from user requirements
-    const systemPrompt = `You are QueryWhiz — an intelligent and safe AI assistant that translates natural language questions into accurate SQL queries and can return queried data if a data source is connected.
+    const systemPrompt = `You are AskQL — an intelligent and safe AI assistant that translates natural language questions into accurate SQL queries and can return queried data if a data source is connected.
 
 ### 🎯 Your Purpose:
 Help users interact with structured data (like databases, CSV, or Excel files) using natural language. You will generate SQL queries based on user questions, or if requested, directly return the query result using the connected data source.

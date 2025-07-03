@@ -26,7 +26,7 @@ const Navigation = () => {
               <Database className="w-5 h-5 text-white" />
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-neon-blue to-neon-violet bg-clip-text text-transparent">
-              QueryWhiz
+              AskQL
             </span>
           </Link>
 
