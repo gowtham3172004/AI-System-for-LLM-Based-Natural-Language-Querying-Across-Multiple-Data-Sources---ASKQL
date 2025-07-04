@@ -6,58 +6,17 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import Navigation from '@/components/Navigation';
-
-interface QueryHistoryItem {
-  id: string;
-  question: string;
-  query: string;
-  timestamp: Date;
-  status: 'success' | 'error';
-  executionTime?: number;
-}
+import { useQueryHistory } from '@/contexts/QueryHistoryContext';
 
 const QueryHistory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-
-  // Query history state
-  const [queryHistory, setQueryHistory] = useState<QueryHistoryItem[]>([
-    {
-      id: '1',
-      question: 'Show me total sales by region',
-      query: 'SELECT region, SUM(sales) as total_sales FROM sales_data GROUP BY region ORDER BY total_sales DESC;',
-      timestamp: new Date('2024-01-15T10:30:00'),
-      status: 'success',
-      executionTime: 1.2
-    },
-    {
-      id: '2',
-      question: 'Which customers bought the most products?',
-      query: 'SELECT customer_name, COUNT(*) as product_count FROM orders JOIN customers ON orders.customer_id = customers.id GROUP BY customer_name ORDER BY product_count DESC LIMIT 10;',
-      timestamp: new Date('2024-01-15T09:15:00'),
-      status: 'success',
-      executionTime: 0.8
-    },
-    {
-      id: '3',
-      question: 'Average order value by month',
-      query: 'SELECT DATE_FORMAT(order_date, "%Y-%m") as month, AVG(total_amount) as avg_order_value FROM orders GROUP BY month ORDER BY month;',
-      timestamp: new Date('2024-01-14T16:45:00'),
-      status: 'success',
-      executionTime: 2.1
-    },
-    {
-      id: '4',
-      question: 'Top selling products last quarter',
-      query: 'SELECT p.product_name, SUM(oi.quantity) as total_sold FROM products p JOIN order_items oi ON p.id = oi.product_id WHERE order_date >= "2023-10-01" GROUP BY p.product_name ORDER BY total_sold DESC;',
-      timestamp: new Date('2024-01-14T14:20:00'),
-      status: 'error'
-    }
-  ]);
+  const { queryHistory, clearHistory } = useQueryHistory();
 
   const filteredHistory = queryHistory.filter(item => {
     const matchesSearch = item.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.query.toLowerCase().includes(searchTerm.toLowerCase());
+                         (item.query && item.query.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                         item.response.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === 'all' || item.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
@@ -70,26 +29,21 @@ const QueryHistory = () => {
     });
   };
 
-  const rerunQuery = (item: QueryHistoryItem) => {
+  const rerunQuery = (item: any) => {
     toast({
       title: "Re-running query...",
       description: `Executing: ${item.question}`,
     });
   };
 
-  const deleteQuery = (id: string) => {
-    toast({
-      title: "Query deleted",
-      description: "Query has been removed from history",
-    });
-  };
-
   const clearAllHistory = () => {
-    setQueryHistory([]);
-    toast({
-      title: "History cleared",
-      description: "All query history has been deleted",
-    });
+    if (window.confirm('Are you sure you want to clear all query history? This action cannot be undone.')) {
+      clearHistory();
+      toast({
+        title: "History cleared",
+        description: "All query history has been deleted",
+      });
+    }
   };
 
   return (
@@ -132,6 +86,7 @@ const QueryHistory = () => {
                 onClick={clearAllHistory}
                 variant="outline"
                 className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                disabled={queryHistory.length === 0}
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Clear All
@@ -182,37 +137,41 @@ const QueryHistory = () => {
                   </div>
                   
                   <div className="flex space-x-2">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => copyQuery(item.query)}
-                      className="text-gray-400 hover:text-neon-blue opacity-0 group-hover:opacity-100 transition-all"
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => rerunQuery(item)}
-                      className="text-gray-400 hover:text-neon-green opacity-0 group-hover:opacity-100 transition-all"
-                    >
-                      <Play className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => deleteQuery(item.id)}
-                      className="text-gray-400 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    {item.query && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => copyQuery(item.query)}
+                        className="text-gray-400 hover:text-neon-blue opacity-0 group-hover:opacity-100 transition-all"
+                      >
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    )}
+                    {item.query && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => rerunQuery(item)}
+                        className="text-gray-400 hover:text-neon-green opacity-0 group-hover:opacity-100 transition-all"
+                      >
+                        <Play className="w-4 h-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
                 
-                <div className="bg-dark-bg rounded-lg p-4 border border-dark-border">
-                  <pre className="text-sm text-gray-300 overflow-x-auto">
-                    <code>{item.query}</code>
-                  </pre>
+                {item.query && (
+                  <div className="bg-dark-bg rounded-lg p-4 border border-dark-border">
+                    <pre className="text-sm text-gray-300 overflow-x-auto">
+                      <code>{item.query}</code>
+                    </pre>
+                  </div>
+                )}
+                
+                <div className="bg-dark-bg rounded-lg p-4 border border-dark-border mt-2">
+                  <div className="text-sm text-gray-300 whitespace-pre-wrap">
+                    {item.response}
+                  </div>
                 </div>
               </div>
             ))}

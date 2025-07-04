@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useQueryHistory } from '@/contexts/QueryHistoryContext';
 
 interface Message {
   id: string;
@@ -24,6 +25,7 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { addToHistory } = useQueryHistory();
 
   // Function to detect if user is asking for a query specifically
   const isQueryRequest = (question: string): boolean => {
@@ -87,6 +89,15 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
       };
 
       setMessages(prev => [...prev, botMessage]);
+      
+      // Add to history
+      addToHistory({
+        question: currentQuestion,
+        query: isQueryReq ? (data.sqlQuery || data.response) : undefined,
+        response: data.explanation || data.response,
+        status: 'success',
+        mode: requestMode
+      });
     } catch (error) {
       console.error('Error generating SQL:', error);
       
@@ -98,6 +109,13 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
       };
 
       setMessages(prev => [...prev, errorMessage]);
+      
+      // Add error to history
+      addToHistory({
+        question: currentQuestion,
+        response: "Error occurred while processing the question",
+        status: 'error'
+      });
       
       toast({
         title: "Error",

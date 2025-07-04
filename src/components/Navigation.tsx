@@ -1,11 +1,16 @@
 
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Database, History, HelpCircle, Info } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, Database, History, HelpCircle, Info, LogIn, LogOut, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     { path: '/', label: 'Home', icon: Database },
@@ -15,6 +20,39 @@ const Navigation = () => {
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  // Check for user authentication
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out.",
+      });
+      navigate('/');
+    }
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-dark-surface/80 backdrop-blur-md border-b border-dark-border">
@@ -46,6 +84,35 @@ const Navigation = () => {
                 <span>{item.label}</span>
               </Link>
             ))}
+            
+            {/* Auth Button */}
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 text-gray-300">
+                  <User className="w-4 h-4" />
+                  <span className="text-sm">{user.email}</span>
+                </div>
+                <Button
+                  onClick={handleSignOut}
+                  variant="outline"
+                  size="sm"
+                  className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={() => navigate('/auth')}
+                variant="outline"
+                size="sm"
+                className="border-neon-blue text-neon-blue hover:bg-neon-blue hover:text-dark-bg"
+              >
+                <LogIn className="w-4 h-4 mr-2" />
+                Sign In
+              </Button>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -75,6 +142,41 @@ const Navigation = () => {
                 <span>{item.label}</span>
               </Link>
             ))}
+            
+            {/* Mobile Auth */}
+            <div className="border-t border-dark-border mt-4 pt-4">
+              {user ? (
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2 text-gray-300 p-3">
+                    <User className="w-5 h-5" />
+                    <span className="text-sm">{user.email}</span>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      handleSignOut();
+                      setIsMenuOpen(false);
+                    }}
+                    variant="outline"
+                    className="w-full border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  onClick={() => {
+                    navigate('/auth');
+                    setIsMenuOpen(false);
+                  }}
+                  variant="outline"
+                  className="w-full border-neon-blue text-neon-blue hover:bg-neon-blue hover:text-dark-bg"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Sign In
+                </Button>
+              )}
+            </div>
           </div>
         )}
       </div>

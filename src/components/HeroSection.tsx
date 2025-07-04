@@ -1,13 +1,7 @@
 
-import { useState } from 'react';
-import { Upload, Database, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import FileUploadModal from './FileUploadModal';
-import DatabaseConnectionModal from './DatabaseConnectionModal';
+import { Sparkles, Database, Upload } from 'lucide-react';
 
 const HeroSection = () => {
-  const [showFileUpload, setShowFileUpload] = useState(false);
-  const [showDatabaseConnection, setShowDatabaseConnection] = useState(false);
 
   return (
     <section className="relative py-20 px-4 text-center overflow-hidden">
@@ -29,30 +23,9 @@ const HeroSection = () => {
         </h1>
         
         <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-          Upload your file or connect your database, then ask questions in plain English. 
-          Our AI will generate SQL queries and deliver instant insights.
+          Upload your file, then ask questions in plain English. 
+          AskQL will generate SQL queries and deliver instant insights.
         </p>
-        
-        <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
-          <Button
-            onClick={() => setShowFileUpload(true)}
-            size="lg"
-            className="group bg-gradient-to-r from-neon-blue to-neon-cyan hover:from-neon-cyan hover:to-neon-blue transition-all duration-300 transform hover:scale-105 px-8 py-4 rounded-xl text-lg font-semibold shadow-lg hover:shadow-neon-blue/25"
-          >
-            <Upload className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
-            Upload CSV or Excel File
-          </Button>
-          
-          <Button
-            onClick={() => setShowDatabaseConnection(true)}
-            size="lg"
-            variant="outline"
-            className="group border-neon-violet text-neon-violet hover:bg-neon-violet hover:text-dark-bg transition-all duration-300 transform hover:scale-105 px-8 py-4 rounded-xl text-lg font-semibold glow-border"
-          >
-            <Database className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" />
-            Connect to Database
-          </Button>
-        </div>
         
         {/* Feature highlights */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
@@ -82,9 +55,6 @@ const HeroSection = () => {
         </div>
       </div>
       
-      {/* Modals */}
-      <FileUploadModal open={showFileUpload} onOpenChange={setShowFileUpload} />
-      <DatabaseConnectionModal open={showDatabaseConnection} onOpenChange={setShowDatabaseConnection} />
     </section>
   );
 };
