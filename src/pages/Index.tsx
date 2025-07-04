@@ -15,7 +15,7 @@ const Index = () => {
       <div className="max-w-6xl mx-auto px-4">
         <DataSourcePanel onDataSourceChange={setActiveDataSource} />
       </div>
-      <ChatInterface />
+      <ChatInterface activeDataSource={activeDataSource} />
     </div>
   );
 };

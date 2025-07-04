@@ -16,11 +16,25 @@ interface Message {
   timestamp: Date;
 }
 
-const ChatInterface = () => {
+interface ChatInterfaceProps {
+  activeDataSource?: any;
+}
+
+const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [activeDataSource, setActiveDataSource] = useState<any>(null);
+
+  // Function to detect if user is asking for a query specifically
+  const isQueryRequest = (question: string): boolean => {
+    const queryKeywords = [
+      'query', 'sql', 'select', 'show me the query', 'generate query', 
+      'write query', 'create query', 'sql statement', 'query to'
+    ];
+    return queryKeywords.some(keyword => 
+      question.toLowerCase().includes(keyword.toLowerCase())
+    );
+  };
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
@@ -38,10 +52,19 @@ const ChatInterface = () => {
     setIsLoading(true);
 
     try {
+      const isQueryReq = isQueryRequest(currentQuestion);
+      const requestMode = activeDataSource 
+        ? (isQueryReq ? 'schema-aware' : 'execute')
+        : (isQueryReq ? 'educational' : 'general');
+
       const { data, error } = await supabase.functions.invoke('generate-sql', {
         body: {
           question: currentQuestion,
-          executeQuery: false
+          executeQuery: !isQueryReq && activeDataSource,
+          mode: requestMode,
+          schema: activeDataSource?.schema,
+          tableData: activeDataSource?.data,
+          fileName: activeDataSource?.name
         }
       });
 
@@ -50,14 +73,16 @@ const ChatInterface = () => {
       }
 
       if (!data.success) {
-        throw new Error(data.error || 'Failed to generate SQL query');
+        throw new Error(data.error || 'Failed to process your question');
       }
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content: data.explanation || `Here's the SQL query for your question: "${currentQuestion}"`,
-        query: data.sqlQuery || data.response,
+        content: data.explanation || data.response,
+        query: isQueryReq ? (data.sqlQuery || data.response) : undefined,
+        results: data.results,
+        mode: requestMode,
         timestamp: new Date(),
       };
 
@@ -137,15 +162,17 @@ const ChatInterface = () => {
                       {message.type === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                     </div>
                     
-                    <div className={`rounded-2xl p-4 ${
+                    <div className={`rounded-2xl p-4 max-w-none ${
                       message.type === 'user' 
                         ? 'bg-gradient-to-r from-neon-blue/20 to-neon-cyan/20 border border-neon-blue/30' 
                         : 'bg-dark-elevated border border-dark-border'
                     }`}>
-                      <p className="text-white mb-2">{message.content}</p>
+                      <div className="text-white mb-2 whitespace-pre-wrap break-words leading-relaxed">
+                        {message.content}
+                      </div>
                       
                       {message.query && (
-                        <div className="mt-4 bg-dark-bg rounded-lg p-4 border border-dark-border">
+                        <div className="mt-4 bg-dark-bg rounded-lg p-4 border border-dark-border animate-fade-in">
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center space-x-2">
                               <Code className="w-4 h-4 text-neon-green" />
@@ -170,9 +197,50 @@ const ChatInterface = () => {
                               </Button>
                             </div>
                           </div>
-                          <pre className="text-sm text-gray-300 overflow-x-auto">
+                          <pre className="text-sm text-gray-300 overflow-x-auto whitespace-pre-wrap">
                             <code>{message.query}</code>
                           </pre>
+                        </div>
+                      )}
+
+                      {message.results && (
+                        <div className="mt-4 bg-dark-bg rounded-lg p-4 border border-dark-border animate-fade-in">
+                          <div className="flex items-center space-x-2 mb-3">
+                            <Play className="w-4 h-4 text-neon-cyan" />
+                            <span className="text-sm font-medium text-neon-cyan">Query Results</span>
+                            <span className="text-xs text-gray-400">({message.results.totalRows} rows found)</span>
+                          </div>
+                          {message.results.error ? (
+                            <div className="text-red-400 text-sm">{message.results.error}</div>
+                          ) : (
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-sm text-gray-300">
+                                <thead>
+                                  <tr className="border-b border-dark-border">
+                                    {message.results.data.length > 0 && Object.keys(message.results.data[0]).map((key) => (
+                                      <th key={key} className="text-left p-2 text-neon-blue font-medium">{key}</th>
+                                    ))}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {message.results.data.slice(0, 10).map((row: any, index: number) => (
+                                    <tr key={index} className="border-b border-dark-border/50 hover:bg-dark-elevated/50">
+                                      {Object.values(row).map((value: any, cellIndex) => (
+                                        <td key={cellIndex} className="p-2 break-words max-w-xs">
+                                          {value !== null && value !== undefined ? String(value) : '-'}
+                                        </td>
+                                      ))}
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                              {message.results.totalRows > 10 && (
+                                <div className="text-center text-gray-500 text-xs mt-2">
+                                  Showing first 10 rows of {message.results.totalRows} total rows
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       )}
                       

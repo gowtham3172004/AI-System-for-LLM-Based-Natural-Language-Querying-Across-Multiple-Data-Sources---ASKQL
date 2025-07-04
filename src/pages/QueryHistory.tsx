@@ -20,8 +20,8 @@ const QueryHistory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
 
-  // Mock data
-  const [queryHistory] = useState<QueryHistoryItem[]>([
+  // Query history state
+  const [queryHistory, setQueryHistory] = useState<QueryHistoryItem[]>([
     {
       id: '1',
       question: 'Show me total sales by region',
@@ -85,6 +85,7 @@ const QueryHistory = () => {
   };
 
   const clearAllHistory = () => {
+    setQueryHistory([]);
     toast({
       title: "History cleared",
       description: "All query history has been deleted",
