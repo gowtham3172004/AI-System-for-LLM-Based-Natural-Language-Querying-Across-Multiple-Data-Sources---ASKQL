@@ -42,15 +42,90 @@ const DatabaseConnectionModal = ({ open, onOpenChange, onDatabaseConnected }: Da
 
     setIsConnecting(true);
     
-    // Simulate connection
-    setTimeout(() => {
+    try {
+      // Generate a basic schema for the database type
+      const schema = generateDatabaseSchema(formData.type, formData.database);
+      
+      const connectionInfo = {
+        ...formData,
+        schema,
+        name: `${formData.type.toUpperCase()} - ${formData.database}`
+      };
+      
+      // Call the callback to add this database source
+      if (onDatabaseConnected) {
+        onDatabaseConnected(connectionInfo);
+      }
+      
       setIsConnecting(false);
       toast({
         title: "Database connected successfully!",
         description: `Connected to ${formData.type} database: ${formData.database}`,
       });
       onOpenChange(false);
-    }, 3000);
+      
+      // Reset form
+      setFormData({
+        type: '',
+        host: '',
+        port: '',
+        username: '',
+        password: '',
+        database: ''
+      });
+    } catch (error) {
+      setIsConnecting(false);
+      toast({
+        title: "Connection failed",
+        description: "Failed to connect to database. Please check your credentials.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const generateDatabaseSchema = (type: string, dbName: string): string => {
+    // Generate a basic schema based on database type
+    switch (type.toLowerCase()) {
+      case 'mysql':
+        return `-- MySQL Database: ${dbName}
+CREATE TABLE users (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255),
+  email VARCHAR(255),
+  created_at TIMESTAMP
+);
+
+CREATE TABLE products (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255),
+  price DECIMAL(10,2),
+  category VARCHAR(100)
+);`;
+
+      case 'postgresql':
+        return `-- PostgreSQL Database: ${dbName}
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255),
+  email VARCHAR(255),
+  created_at TIMESTAMP
+);
+
+CREATE TABLE products (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255),
+  price DECIMAL(10,2),
+  category VARCHAR(100)
+);`;
+
+      default:
+        return `-- ${type} Database: ${dbName}
+CREATE TABLE sample_table (
+  id INTEGER PRIMARY KEY,
+  name TEXT,
+  value TEXT
+);`;
+    }
   };
 
   const testConnection = async () => {

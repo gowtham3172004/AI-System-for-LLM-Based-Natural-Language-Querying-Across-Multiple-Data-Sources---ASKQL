@@ -12,6 +12,7 @@ interface DataSource {
   schema?: string;
   data?: any[];
   connected: boolean;
+  connectionInfo?: any; // For database connections
 }
 
 interface DataSourcePanelProps {
@@ -45,12 +46,14 @@ const DataSourcePanel = ({ onDataSourceChange }: DataSourcePanelProps) => {
   };
 
   const handleDatabaseConnection = (connectionInfo: any) => {
+    // Store database connection info for backend use
     const newSource: DataSource = {
       id: Date.now().toString(),
-      name: connectionInfo.name,
+      name: connectionInfo.name || `${connectionInfo.type} Database`,
       type: 'database',
       schema: connectionInfo.schema,
-      connected: true
+      connected: true,
+      connectionInfo: connectionInfo // Store connection details
     };
     
     setDataSources(prev => [...prev, newSource]);
@@ -59,7 +62,7 @@ const DataSourcePanel = ({ onDataSourceChange }: DataSourcePanelProps) => {
     
     toast({
       title: "Database connected!",
-      description: `${connectionInfo.name} is ready for querying`,
+      description: `${newSource.name} is ready for querying`,
     });
   };
 
@@ -88,14 +91,24 @@ const DataSourcePanel = ({ onDataSourceChange }: DataSourcePanelProps) => {
     <div className="bg-dark-surface rounded-2xl border border-dark-border p-6 mb-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-xl font-semibold text-white">Data Sources</h3>
-        <Button
-          onClick={() => setShowFileUpload(true)}
-          size="sm"
-          className="bg-gradient-to-r from-neon-blue to-neon-cyan hover:from-neon-cyan hover:to-neon-blue"
-        >
-          <Upload className="w-4 h-4 mr-2" />
-          Upload Data File
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            onClick={() => setShowFileUpload(true)}
+            size="sm"
+            className="bg-gradient-to-r from-neon-blue to-neon-cyan hover:from-neon-cyan hover:to-neon-blue"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Upload File
+          </Button>
+          <Button
+            onClick={() => setShowDatabaseModal(true)}
+            size="sm"
+            className="bg-gradient-to-r from-neon-violet to-neon-pink hover:from-neon-pink hover:to-neon-violet"
+          >
+            <Database className="w-4 h-4 mr-2" />
+            Connect Database
+          </Button>
+        </div>
       </div>
 
       {dataSources.length === 0 ? (
@@ -160,6 +173,12 @@ const DataSourcePanel = ({ onDataSourceChange }: DataSourcePanelProps) => {
         open={showFileUpload}
         onOpenChange={setShowFileUpload}
         onFileUploaded={handleFileUpload}
+      />
+      
+      <DatabaseConnectionModal
+        open={showDatabaseModal}
+        onOpenChange={setShowDatabaseModal}
+        onDatabaseConnected={handleDatabaseConnection}
       />
     </div>
   );

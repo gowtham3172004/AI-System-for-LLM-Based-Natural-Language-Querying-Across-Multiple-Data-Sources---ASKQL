@@ -37,13 +37,11 @@ const QueryHistory = () => {
   };
 
   const clearAllHistory = () => {
-    if (window.confirm('Are you sure you want to clear all query history? This action cannot be undone.')) {
-      clearHistory();
-      toast({
-        title: "History cleared",
-        description: "All query history has been deleted",
-      });
-    }
+    clearHistory();
+    toast({
+      title: "History cleared", 
+      description: "All query history has been deleted",
+    });
   };
 
   return (
@@ -83,7 +81,11 @@ const QueryHistory = () => {
               </Select>
               
               <Button
-                onClick={clearAllHistory}
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to clear all query history? This action cannot be undone.')) {
+                    clearAllHistory();
+                  }
+                }}
                 variant="outline"
                 className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
                 disabled={queryHistory.length === 0}

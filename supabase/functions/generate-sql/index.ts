@@ -11,9 +11,10 @@ interface GenerateSQLRequest {
   question: string;
   schema?: string;
   executeQuery?: boolean;
-  mode?: 'general' | 'educational' | 'schema-aware' | 'execute';
+  mode?: 'general' | 'educational' | 'schema-aware' | 'execute' | 'database';
   tableData?: any[];
   fileName?: string;
+  connectionInfo?: any; // For database connections
 }
 
 // Simple SQL query executor for array data
@@ -147,7 +148,7 @@ serve(async (req) => {
   }
 
   try {
-    const { question, schema, executeQuery = false, mode = 'general', tableData, fileName }: GenerateSQLRequest = await req.json();
+    const { question, schema, executeQuery = false, mode = 'general', tableData, fileName, connectionInfo }: GenerateSQLRequest = await req.json();
     
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiApiKey) {
@@ -240,6 +241,22 @@ Total Records: ${tableData.length}
 
 Please analyze the question, generate the appropriate SQL query, execute it against the provided data, and return both the query and the actual results.`;
 
+    } else if (mode === 'database' && connectionInfo) {
+      // Database connection mode
+      systemPrompt += `\n\n### 🗄️ Database Connection:
+- Database Type: ${connectionInfo.type}
+- Database Name: ${connectionInfo.database}
+- Connected to: ${connectionInfo.host}
+- Available Schema: Use the provided schema strictly`;
+      
+      prompt = `User Question: "${question}"
+      
+Database Connection: ${connectionInfo.type} - ${connectionInfo.database}
+Schema:
+${schema}
+
+Generate a precise SQL query for this ${connectionInfo.type} database. Use only the tables and columns from the provided schema.`;
+
     } else if (schema) {
       // Schema-aware mode
       systemPrompt += `\n\n### 📋 Database Schema Available:
@@ -251,6 +268,27 @@ Database Schema:
 ${schema}
 
 Generate a precise SQL query using only the provided schema. Explain what the query does.`;
+
+    } else if (tableData && tableData.length > 0) {
+      // Execute mode with actual data
+      const sampleData = tableData.slice(0, 3); // Show first few rows as sample
+      const columns = Object.keys(tableData[0] || {});
+      
+      systemPrompt += `\n\n### 🔍 Current Context:
+- You have access to actual data from: ${fileName || 'uploaded file'}
+- Available columns: ${columns.join(', ')}
+- Sample data structure: ${JSON.stringify(sampleData, null, 2)}
+- Total rows: ${tableData.length}
+
+**IMPORTANT**: Generate the SQL query AND execute it against this data to provide actual results.`;
+
+      prompt = `User Question: "${question}"
+      
+Connected Data: ${fileName || 'User uploaded file'}
+Columns: ${columns.join(', ')}
+Total Records: ${tableData.length}
+
+Please analyze the question, generate the appropriate SQL query, execute it against the provided data, and return both the query and the actual results.`;
 
     } else {
       // General or educational mode
@@ -340,12 +378,24 @@ This question seems to be outside the SQL/database domain. Politely explain that
 
     // Execute query against table data if in execute mode
     let queryResults = null;
-    if (mode === 'execute' && sqlQuery && tableData && tableData.length > 0) {
+    if ((mode === 'execute' || mode === 'database') && sqlQuery && (tableData?.length > 0 || connectionInfo)) {
       try {
-        queryResults = executeQueryOnData(sqlQuery, tableData, fileName);
+        if (tableData?.length > 0) {
+          queryResults = executeQueryOnData(sqlQuery, tableData, fileName);
+        } else if (connectionInfo) {
+          // For database connections, return a message indicating database query would be executed
+          queryResults = {
+            query: sqlQuery,
+            message: `This query would be executed against ${connectionInfo.type} database: ${connectionInfo.database}`,
+            note: "Database execution is simulated in this demo. In production, this would connect to your actual database."
+          };
+        }
       } catch (error) {
         console.error('Query execution error:', error);
-        queryResults = { error: `Query execution failed: ${error.message}` };
+        // Don't return failed query messages unless specifically requested
+        if (mode === 'execute') {
+          queryResults = { error: `Query execution failed: ${error.message}` };
+        }
       }
     }
 

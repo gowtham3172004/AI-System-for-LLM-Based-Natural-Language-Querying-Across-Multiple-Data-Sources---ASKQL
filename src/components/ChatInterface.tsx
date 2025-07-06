@@ -56,18 +56,25 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
     try {
       const isQueryReq = isQueryRequest(currentQuestion);
       const requestMode = activeDataSource 
-        ? (isQueryReq ? 'schema-aware' : 'execute')
+        ? (activeDataSource.type === 'database' ? 'database' : (isQueryReq ? 'schema-aware' : 'execute'))
         : (isQueryReq ? 'educational' : 'general');
 
+      const requestBody: any = {
+        question: currentQuestion,
+        executeQuery: !isQueryReq && activeDataSource,
+        mode: requestMode,
+        schema: activeDataSource?.schema,
+        tableData: activeDataSource?.data,
+        fileName: activeDataSource?.name
+      };
+
+      // Add connection info for database sources
+      if (activeDataSource?.type === 'database' && activeDataSource?.connectionInfo) {
+        requestBody.connectionInfo = activeDataSource.connectionInfo;
+      }
+
       const { data, error } = await supabase.functions.invoke('generate-sql', {
-        body: {
-          question: currentQuestion,
-          executeQuery: !isQueryReq && activeDataSource,
-          mode: requestMode,
-          schema: activeDataSource?.schema,
-          tableData: activeDataSource?.data,
-          fileName: activeDataSource?.name
-        }
+        body: requestBody
       });
 
       if (error) {
@@ -180,7 +187,7 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
                       {message.type === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                     </div>
                     
-                    <div className={`rounded-2xl p-4 max-w-none ${
+                    <div className={`rounded-2xl p-4 max-w-none break-words overflow-hidden ${
                       message.type === 'user' 
                         ? 'bg-gradient-to-r from-neon-blue/20 to-neon-cyan/20 border border-neon-blue/30' 
                         : 'bg-dark-elevated border border-dark-border'
