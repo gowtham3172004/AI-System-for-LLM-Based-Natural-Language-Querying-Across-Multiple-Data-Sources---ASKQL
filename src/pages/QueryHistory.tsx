@@ -6,12 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import Navigation from '@/components/Navigation';
-import { useQueryHistory } from '@/contexts/QueryHistoryContext';
+import { useUserQueryHistory } from '@/contexts/UserQueryHistoryContext';
 
 const QueryHistory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-  const { queryHistory, clearHistory } = useQueryHistory();
+  const { queryHistory, clearHistory, isLoading } = useUserQueryHistory();
 
   const filteredHistory = queryHistory.filter(item => {
     const matchesSearch = item.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -36,12 +36,8 @@ const QueryHistory = () => {
     });
   };
 
-  const clearAllHistory = () => {
-    clearHistory();
-    toast({
-      title: "History cleared", 
-      description: "All query history has been deleted",
-    });
+  const clearAllHistory = async () => {
+    await clearHistory();
   };
 
   return (
@@ -88,7 +84,7 @@ const QueryHistory = () => {
                 }}
                 variant="outline"
                 className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-                disabled={queryHistory.length === 0}
+                disabled={queryHistory.length === 0 || isLoading}
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Clear All
@@ -119,13 +115,13 @@ const QueryHistory = () => {
                       {item.question}
                     </h3>
                     <div className="flex items-center space-x-4 text-sm text-gray-400">
-                      <div className="flex items-center space-x-1">
-                        <Clock className="w-4 h-4" />
-                        <span>{item.timestamp.toLocaleString()}</span>
-                      </div>
-                      {item.executionTime && (
+                    <div className="flex items-center space-x-1">
+                      <Clock className="w-4 h-4" />
+                      <span>{new Date(item.created_at).toLocaleString()}</span>
+                    </div>
+                      {item.execution_time && (
                         <span className="bg-dark-elevated px-2 py-1 rounded">
-                          {item.executionTime}s
+                          {item.execution_time}s
                         </span>
                       )}
                       <span className={`px-2 py-1 rounded text-xs font-medium ${

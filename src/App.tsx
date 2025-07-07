@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryHistoryProvider } from "./contexts/QueryHistoryContext";
 import { AppStateProvider } from "./contexts/AppStateContext";
+import { UserQueryHistoryProvider } from "./contexts/UserQueryHistoryContext";
+import { ChatSessionProvider } from "./contexts/ChatSessionContext";
 import Index from "./pages/Index";
 import QueryHistory from "./pages/QueryHistory";
 import Help from "./pages/Help";
@@ -18,8 +20,10 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AppStateProvider>
-      <QueryHistoryProvider>
-        <TooltipProvider>
+      <UserQueryHistoryProvider>
+        <ChatSessionProvider>
+          <QueryHistoryProvider>
+            <TooltipProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -32,9 +36,11 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryHistoryProvider>
+              </BrowserRouter>
+            </TooltipProvider>
+          </QueryHistoryProvider>
+        </ChatSessionProvider>
+      </UserQueryHistoryProvider>
     </AppStateProvider>
   </QueryClientProvider>
 );

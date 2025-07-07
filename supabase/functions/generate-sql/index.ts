@@ -15,6 +15,12 @@ interface GenerateSQLRequest {
   tableData?: any[];
   fileName?: string;
   connectionInfo?: any; // For database connections
+  isFollowUp?: boolean;
+  messageHistory?: Array<{
+    role: 'user' | 'assistant';
+    content: string;
+    query?: string;
+  }>;
 }
 
 // Simple SQL query executor for array data
@@ -148,7 +154,17 @@ serve(async (req) => {
   }
 
   try {
-    const { question, schema, executeQuery = false, mode = 'general', tableData, fileName, connectionInfo }: GenerateSQLRequest = await req.json();
+    const { 
+      question, 
+      schema, 
+      executeQuery = false, 
+      mode = 'general', 
+      tableData, 
+      fileName, 
+      connectionInfo,
+      isFollowUp = false,
+      messageHistory = []
+    }: GenerateSQLRequest = await req.json();
     
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiApiKey) {
@@ -220,6 +236,22 @@ Results:
     // Determine the mode and adjust prompt accordingly
     let prompt = '';
     
+    // Handle follow-up messages with context
+    let contextualPrompt = '';
+    if (isFollowUp && messageHistory.length > 0) {
+      const contextMessages = messageHistory.slice(-6); // Last 6 messages for context
+      const conversationContext = contextMessages.map(msg => 
+        `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}${msg.query ? `\nSQL: ${msg.query}` : ''}`
+      ).join('\n\n');
+      
+      contextualPrompt = `\n\n### 🔄 Conversation Context:
+${conversationContext}
+
+**Current follow-up question**: "${question}"
+
+Please use the conversation context above to provide a relevant and accurate response to the current question.`;
+    }
+    
     if (mode === 'execute' && tableData && tableData.length > 0) {
       // Execute mode with actual data
       const sampleData = tableData.slice(0, 3); // Show first few rows as sample
@@ -239,7 +271,7 @@ Connected Data: ${fileName || 'User uploaded file'}
 Columns: ${columns.join(', ')}
 Total Records: ${tableData.length}
 
-Please analyze the question, generate the appropriate SQL query, execute it against the provided data, and return both the query and the actual results.`;
+Please analyze the question, generate the appropriate SQL query, execute it against the provided data, and return both the query and the actual results.${contextualPrompt}`;
 
     } else if (mode === 'database' && connectionInfo) {
       // Database connection mode
@@ -255,7 +287,7 @@ Database Connection: ${connectionInfo.type} - ${connectionInfo.database}
 Schema:
 ${schema}
 
-Generate a precise SQL query for this ${connectionInfo.type} database. Use only the tables and columns from the provided schema.`;
+Generate a precise SQL query for this ${connectionInfo.type} database. Use only the tables and columns from the provided schema.${contextualPrompt}`;
 
     } else if (schema) {
       // Schema-aware mode
@@ -267,7 +299,7 @@ Use this schema strictly. Do not create or assume any table/column names not lis
 Database Schema:
 ${schema}
 
-Generate a precise SQL query using only the provided schema. Explain what the query does.`;
+Generate a precise SQL query using only the provided schema. Explain what the query does.${contextualPrompt}`;
 
     } else if (tableData && tableData.length > 0) {
       // Execute mode with actual data
@@ -288,7 +320,7 @@ Connected Data: ${fileName || 'User uploaded file'}
 Columns: ${columns.join(', ')}
 Total Records: ${tableData.length}
 
-Please analyze the question, generate the appropriate SQL query, execute it against the provided data, and return both the query and the actual results.`;
+Please analyze the question, generate the appropriate SQL query, execute it against the provided data, and return both the query and the actual results.${contextualPrompt}`;
 
     } else {
       // General or educational mode
@@ -298,15 +330,15 @@ Please analyze the question, generate the appropriate SQL query, execute it agai
       if (isGreeting) {
         prompt = `User said: "${question}"
         
-Please respond in a friendly, welcoming way and introduce yourself as AskQL, ready to help with SQL queries and data analysis.`;
+Please respond in a friendly, welcoming way and introduce yourself as AskQL, ready to help with SQL queries and data analysis.${contextualPrompt}`;
       } else if (isSQLQuestion) {
         prompt = `User Question: "${question}"
         
-This appears to be an SQL educational question. Provide helpful SQL examples, syntax explanations, or query patterns that address their question. Use realistic but generic table/column names for examples.`;
+This appears to be an SQL educational question. Provide helpful SQL examples, syntax explanations, or query patterns that address their question. Use realistic but generic table/column names for examples.${contextualPrompt}`;
       } else {
         prompt = `User Question: "${question}"
         
-This question seems to be outside the SQL/database domain. Politely explain that you specialize in SQL queries and database analysis, and ask if they have any SQL-related questions instead.`;
+This question seems to be outside the SQL/database domain. Politely explain that you specialize in SQL queries and database analysis, and ask if they have any SQL-related questions instead.${contextualPrompt}`;
       }
     }
 
