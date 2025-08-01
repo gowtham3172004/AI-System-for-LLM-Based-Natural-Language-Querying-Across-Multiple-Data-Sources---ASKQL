@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Database, History, HelpCircle, Info, LogIn, LogOut, User } from 'lucide-react';
+import { Menu, X, Database, History, HelpCircle, Info, LogIn, LogOut, User, Users, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -14,6 +14,8 @@ const Navigation = () => {
 
   const navItems = [
     { path: '/', label: 'Home', icon: Database },
+    { path: '/chatbot', label: 'Chatbot', icon: Users },
+    { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
     { path: '/history', label: 'Query History', icon: History },
     { path: '/help', label: 'Help', icon: HelpCircle },
     { path: '/about', label: 'About', icon: Info },
@@ -55,8 +57,8 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-dark-surface/80 backdrop-blur-md border-b border-dark-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="fixed top-4 left-4 right-4 z-50 bg-dark-surface/90 backdrop-blur-md border border-dark-border rounded-2xl shadow-2xl">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 group">
@@ -126,7 +128,7 @@ const Navigation = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden bg-dark-elevated rounded-lg mt-2 p-4 animate-slide-up">
+          <div className="md:hidden bg-dark-elevated rounded-lg mt-2 p-4 animate-slide-up mx-2">
             {navItems.map((item) => (
               <Link
                 key={item.path}
