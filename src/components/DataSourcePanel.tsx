@@ -89,21 +89,21 @@ const DataSourcePanel = ({ onDataSourceChange }: DataSourcePanelProps) => {
 
   return (
     <div className="bg-dark-surface rounded-2xl border border-dark-border p-6 mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-semibold text-white">Data Sources</h3>
-        <div className="flex gap-3">
+      <div className="text-center mb-6">
+        <h3 className="text-xl font-semibold text-white mb-4">Data Sources</h3>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
           <Button
             onClick={() => setShowFileUpload(true)}
-            size="sm"
-            className="bg-gradient-to-r from-neon-blue to-neon-cyan hover:from-neon-cyan hover:to-neon-blue"
+            size="default"
+            className="bg-gradient-to-r from-neon-blue to-neon-cyan hover:from-neon-cyan hover:to-neon-blue w-full sm:w-auto"
           >
             <Upload className="w-4 h-4 mr-2" />
             Upload File
           </Button>
           <Button
             onClick={() => setShowDatabaseModal(true)}
-            size="sm"
-            className="bg-gradient-to-r from-neon-violet to-neon-pink hover:from-neon-pink hover:to-neon-violet"
+            size="default"
+            className="bg-gradient-to-r from-neon-violet to-neon-pink hover:from-neon-pink hover:to-neon-violet w-full sm:w-auto"
           >
             <Database className="w-4 h-4 mr-2" />
             Connect Database
