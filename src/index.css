@@ -57,27 +57,4 @@
   .font-inter {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
-  
-  /* Mobile responsive utilities */
-  @media (max-width: 768px) {
-    .container {
-      @apply px-2;
-    }
-    
-    nav {
-      @apply left-2 right-2;
-    }
-    
-    .grid-cols-1 {
-      @apply gap-4;
-    }
-    
-    h1 {
-      @apply text-2xl;
-    }
-    
-    h2 {
-      @apply text-xl;
-    }
-  }
 }

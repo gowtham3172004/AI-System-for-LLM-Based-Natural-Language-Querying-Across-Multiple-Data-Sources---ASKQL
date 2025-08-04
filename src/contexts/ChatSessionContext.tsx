@@ -41,7 +41,7 @@ export const ChatSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   // Generate new session ID
   const generateSessionId = () => {
-    return crypto.randomUUID();
+    return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
   };
 
   // Save session to Supabase

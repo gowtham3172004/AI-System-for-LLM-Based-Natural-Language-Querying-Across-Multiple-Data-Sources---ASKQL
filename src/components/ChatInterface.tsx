@@ -46,33 +46,9 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
 
     try {
       const isQueryReq = isQueryRequest(currentQuestion);
-      
-      // Debug logging to understand the data source
-      console.log('ChatInterface Debug:', {
-        activeDataSource,
-        hasActiveDataSource: !!activeDataSource,
-        dataSourceType: activeDataSource?.type,
-        hasData: activeDataSource?.data ? activeDataSource.data.length : 0,
-        hasSchema: !!activeDataSource?.schema,
-        isQueryReq
-      });
-      
-      // Determine the correct mode based on data source and question type
-      let requestMode = 'general';
-      if (activeDataSource) {
-        if (activeDataSource.type === 'database') {
-          requestMode = 'database';
-        } else if (activeDataSource.data && activeDataSource.data.length > 0) {
-          // For file uploads with actual data, always use execute mode to analyze the data
-          requestMode = 'execute';
-        } else if (activeDataSource.schema) {
-          requestMode = 'schema-aware';
-        }
-      } else if (isQueryReq) {
-        requestMode = 'educational';
-      }
-      
-      console.log('Request mode determined:', requestMode);
+      const requestMode = activeDataSource 
+        ? (activeDataSource.type === 'database' ? 'database' : (isQueryReq ? 'schema-aware' : 'execute'))
+        : (isQueryReq ? 'educational' : 'general');
 
       // Get recent messages for context if it's a follow-up
       const recentMessages = isFollowUp ? getRecentMessages(10) : [];
