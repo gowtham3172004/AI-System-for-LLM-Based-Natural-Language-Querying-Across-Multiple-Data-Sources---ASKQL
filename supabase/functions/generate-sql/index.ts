@@ -166,6 +166,16 @@ serve(async (req) => {
       messageHistory = []
     }: GenerateSQLRequest = await req.json();
     
+    console.log('Request received:', {
+      question,
+      mode,
+      hasTableData: !!tableData && tableData.length > 0,
+      hasSchema: !!schema,
+      hasConnectionInfo: !!connectionInfo,
+      fileName,
+      executeQuery
+    });
+    
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiApiKey) {
       throw new Error('GEMINI_API_KEY not found in environment variables');
