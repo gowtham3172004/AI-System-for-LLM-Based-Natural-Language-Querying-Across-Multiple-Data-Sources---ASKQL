@@ -47,6 +47,16 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
     try {
       const isQueryReq = isQueryRequest(currentQuestion);
       
+      // Debug logging to understand the data source
+      console.log('ChatInterface Debug:', {
+        activeDataSource,
+        hasActiveDataSource: !!activeDataSource,
+        dataSourceType: activeDataSource?.type,
+        hasData: activeDataSource?.data ? activeDataSource.data.length : 0,
+        hasSchema: !!activeDataSource?.schema,
+        isQueryReq
+      });
+      
       // Determine the correct mode based on data source and question type
       let requestMode = 'general';
       if (activeDataSource) {
@@ -61,6 +71,8 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
       } else if (isQueryReq) {
         requestMode = 'educational';
       }
+      
+      console.log('Request mode determined:', requestMode);
 
       // Get recent messages for context if it's a follow-up
       const recentMessages = isFollowUp ? getRecentMessages(10) : [];
