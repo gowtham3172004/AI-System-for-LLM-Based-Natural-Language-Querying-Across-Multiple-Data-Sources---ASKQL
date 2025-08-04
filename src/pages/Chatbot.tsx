@@ -84,7 +84,7 @@ const Chatbot = () => {
 
                 {/* Chat Interface */}
                 <div className="flex-1 overflow-hidden">
-                  <ChatInterface />
+                  <ChatInterface activeDataSource={activeDataSource} />
                 </div>
               </div>
             </div>
