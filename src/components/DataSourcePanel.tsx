@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Upload, Database, Plus, FileText, CheckCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
+import { useAppState } from '@/contexts/AppStateContext';
 import FileUploadModal from './FileUploadModal';
 import DatabaseConnectionModal from './DatabaseConnectionModal';
 
@@ -20,8 +21,7 @@ interface DataSourcePanelProps {
 }
 
 const DataSourcePanel = ({ onDataSourceChange }: DataSourcePanelProps) => {
-  const [dataSources, setDataSources] = useState<DataSource[]>([]);
-  const [activeSource, setActiveSource] = useState<DataSource | null>(null);
+  const { dataSources, activeDataSource, setDataSources, setActiveDataSource } = useAppState();
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [showDatabaseModal, setShowDatabaseModal] = useState(false);
 
@@ -35,8 +35,8 @@ const DataSourcePanel = ({ onDataSourceChange }: DataSourcePanelProps) => {
       connected: true
     };
     
-    setDataSources(prev => [...prev, newSource]);
-    setActiveSource(newSource);
+    setDataSources([...dataSources, newSource]);
+    setActiveDataSource(newSource);
     onDataSourceChange(newSource);
     
     toast({
@@ -56,8 +56,8 @@ const DataSourcePanel = ({ onDataSourceChange }: DataSourcePanelProps) => {
       connectionInfo: connectionInfo // Store connection details
     };
     
-    setDataSources(prev => [...prev, newSource]);
-    setActiveSource(newSource);
+    setDataSources([...dataSources, newSource]);
+    setActiveDataSource(newSource);
     onDataSourceChange(newSource);
     
     toast({
@@ -80,60 +80,60 @@ const DataSourcePanel = ({ onDataSourceChange }: DataSourcePanelProps) => {
   };
 
   const removeDataSource = (id: string) => {
-    setDataSources(prev => prev.filter(source => source.id !== id));
-    if (activeSource?.id === id) {
-      setActiveSource(null);
+    setDataSources(dataSources.filter(source => source.id !== id));
+    if (activeDataSource?.id === id) {
+      setActiveDataSource(null);
       onDataSourceChange(null);
     }
   };
 
   return (
-    <div className="bg-dark-surface rounded-2xl border border-dark-border p-6 mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xl font-semibold text-white">Data Sources</h3>
-        <div className="flex gap-3">
+    <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 p-4 mb-4">
+      <div className="text-center mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 mb-3">Data Sources</h3>
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
           <Button
             onClick={() => setShowFileUpload(true)}
             size="sm"
-            className="bg-gradient-to-r from-neon-blue to-neon-cyan hover:from-neon-cyan hover:to-neon-blue"
+            className="w-full sm:w-auto bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white"
           >
-            <Upload className="w-4 h-4 mr-2" />
+            <Upload className="w-4 h-4 mr-2 text-sky-100" />
             Upload File
           </Button>
           <Button
             onClick={() => setShowDatabaseModal(true)}
             size="sm"
-            className="bg-gradient-to-r from-neon-violet to-neon-pink hover:from-neon-pink hover:to-neon-violet"
+            className="w-full sm:w-auto bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white"
           >
-            <Database className="w-4 h-4 mr-2" />
+            <Database className="w-4 h-4 mr-2 text-sky-100" />
             Connect Database
           </Button>
         </div>
       </div>
 
       {dataSources.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
-          <Plus className="w-12 h-12 mx-auto mb-4" />
-          <p>No data sources connected</p>
-          <p className="text-sm mt-2">Upload a file or connect a database to get started</p>
+        <div className="text-center py-4 text-gray-600">
+          <Plus className="w-8 h-8 mx-auto mb-2" />
+          <p className="text-sm">No data sources connected</p>
+          <p className="text-xs mt-1">Upload a file or connect a database to get started</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {dataSources.map((source) => (
             <div
               key={source.id}
-              className={`flex items-center justify-between p-4 rounded-lg border transition-all cursor-pointer ${
-                activeSource?.id === source.id
-                  ? 'border-neon-blue bg-neon-blue/10'
-                  : 'border-dark-border bg-dark-elevated hover:border-neon-blue/50'
+              className={`flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${
+                activeDataSource?.id === source.id
+                  ? 'border-accent-blue bg-accent-blue/10'
+                  : 'border-gray-200 bg-gray-50 hover:border-accent-blue/50'
               }`}
               onClick={() => {
-                setActiveSource(source);
+                setActiveDataSource(source);
                 onDataSourceChange(source);
               }}
             >
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-neon-green to-neon-cyan rounded-lg flex items-center justify-center">
+                <div className="w-10 h-10 bg-sky-500 rounded-lg flex items-center justify-center">
                   {source.type === 'file' ? (
                     <FileText className="w-5 h-5 text-white" />
                   ) : (
@@ -141,8 +141,8 @@ const DataSourcePanel = ({ onDataSourceChange }: DataSourcePanelProps) => {
                   )}
                 </div>
                 <div>
-                  <h4 className="text-white font-medium">{source.name}</h4>
-                  <p className="text-gray-400 text-sm">
+                  <h4 className="text-gray-900 font-medium">{source.name}</h4>
+                  <p className="text-gray-600 text-sm">
                     {source.type === 'file' 
                       ? `${source.data?.length || 0} rows` 
                       : 'Database connection'
@@ -151,7 +151,7 @@ const DataSourcePanel = ({ onDataSourceChange }: DataSourcePanelProps) => {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <CheckCircle className="w-5 h-5 text-neon-green" />
+                <CheckCircle className="w-5 h-5 text-accent-green" />
                 <Button
                   size="sm"
                   variant="ghost"

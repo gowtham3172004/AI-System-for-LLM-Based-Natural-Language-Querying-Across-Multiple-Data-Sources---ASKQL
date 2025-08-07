@@ -43,15 +43,8 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     localStorage.setItem('askql-app-state', JSON.stringify(state));
   }, [messages, dataSources, activeDataSource]);
 
-  // Clear state on page refresh or close
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      localStorage.removeItem('askql-app-state');
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, []);
+  // Note: Removed automatic clearing of state on page refresh/close
+  // to allow data sources to persist across page navigations
 
   const addMessage = (message: any) => {
     setMessages(prev => [...prev, { ...message, id: Date.now().toString(), timestamp: new Date() }]);

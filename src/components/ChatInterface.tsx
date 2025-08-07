@@ -22,7 +22,9 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
   const isQueryRequest = (question: string): boolean => {
     const queryKeywords = [
       'query', 'sql', 'select', 'show me the query', 'generate query', 
-      'write query', 'create query', 'sql statement', 'query to'
+      'write query', 'create query', 'sql statement', 'query to',
+      'give me the query', 'what is the query', 'show the query',
+      'display the query', 'query for', 'sql for'
     ];
     return queryKeywords.some(keyword => 
       question.toLowerCase().includes(keyword.toLowerCase())
@@ -73,13 +75,18 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
         requestBody.connectionInfo = activeDataSource.connectionInfo;
       }
 
-      const { data, error } = await supabase.functions.invoke('generate-sql', {
+      console.log('Sending request to generate-sql function:', requestBody);
+
+      const { data, error } = await supabase.functions.invoke('index-ts', {
         body: requestBody
       });
 
       if (error) {
+        console.error('Supabase function error:', error);
         throw error;
       }
+
+      console.log('Response from generate-sql function:', data);
 
       if (!data.success) {
         throw new Error(data.error || 'Failed to process your question');
@@ -89,7 +96,7 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
       addMessage({
         type: 'bot',
         content: data.explanation || data.response,
-        query: isQueryReq ? (data.sqlQuery || data.response) : undefined,
+        query: isQueryReq && data.sqlQuery ? data.sqlQuery : undefined,
         results: data.results,
         mode: requestMode,
       });
@@ -97,7 +104,7 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
       // Add to history
       addToHistory({
         question: currentQuestion,
-        query: isQueryReq ? (data.sqlQuery || data.response) : undefined,
+        query: isQueryReq && data.sqlQuery ? data.sqlQuery : undefined,
         response: data.explanation || data.response,
         status: 'success',
         mode: requestMode
@@ -136,92 +143,85 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
     });
   };
 
-  const runQuery = (query: string) => {
-    toast({
-      title: "Query executed!",
-      description: "Running query against your data source...",
-    });
-  };
-
   return (
-    <section className="py-16 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-white mb-4">
-            Start Asking Questions
-          </h2>
-          <p className="text-gray-400 text-lg">
-            Type your questions in plain English and watch the magic happen
-          </p>
-        </div>
-
-        {/* Chat Messages */}
-        <div className="bg-dark-surface rounded-2xl border border-dark-border p-6 mb-6 min-h-[400px] max-h-[600px] overflow-y-auto">
-          {messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-gray-500">
-              <div className="text-center">
-                <Bot className="w-12 h-12 mx-auto mb-4 text-neon-blue" />
-                <p>Ask me anything about your data!</p>
-                <p className="text-sm mt-2">Try: "Show me total sales by region" or "Which customers bought the most?"</p>
-              </div>
+    <div className="flex flex-col h-[600px] sm:h-[700px]">
+      {/* Chat message area */}
+      <div className="flex-1 bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 mb-6 min-h-[300px] sm:min-h-[400px] max-h-[500px] sm:max-h-[600px] overflow-y-auto">
+        {messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <Bot className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+              <p className="text-gray-600 text-lg">Ask me anything about your data!</p>
             </div>
-          ) : (
-            <div className="space-y-6">
-              {messages.map((message) => (
-                <ChatMessage
-                  key={message.id}
-                  message={message}
-                  onCopyQuery={copyQuery}
-                  onRunQuery={runQuery}
-                />
-              ))}
-              
-              {isLoading && (
-                <div className="flex justify-start animate-slide-up">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-neon-violet to-neon-pink flex items-center justify-center">
-                      <Bot className="w-4 h-4" />
-                    </div>
-                    <div className="bg-dark-elevated rounded-2xl p-4 border border-dark-border">
-                      <div className="flex space-x-2">
-                        <div className="w-2 h-2 bg-neon-blue rounded-full animate-bounce"></div>
-                        <div className="w-2 h-2 bg-neon-cyan rounded-full animate-bounce delay-75"></div>
-                        <div className="w-2 h-2 bg-neon-violet rounded-full animate-bounce delay-150"></div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {messages.map((msg, index) => (
+              <div key={index} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[80%] rounded-lg px-4 py-3 ${
+                  msg.type === 'user' 
+                    ? 'bg-gradient-to-r from-accent-blue/20 to-accent-cyan/20 border border-accent-blue/30 text-gray-900' 
+                    : 'bg-gray-50 border border-gray-200 text-gray-900'
+                }`}>
+                  <div className="text-sm">{msg.content}</div>
+                  {msg.query && (
+                    <div className="mt-3 p-3 bg-gray-100 rounded border border-gray-200">
+                      <div className="text-xs text-accent-green font-medium mb-2">Generated SQL:</div>
+                      <pre className="text-xs text-gray-700 overflow-x-auto">{msg.query}</pre>
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={() => copyQuery(msg.query)}
+                          className="text-xs bg-sky-100 hover:bg-sky-200 text-sky-700 border border-sky-300 px-2 py-1 rounded"
+                        >
+                          Copy
+                        </button>
                       </div>
                     </div>
-                  </div>
+                  )}
+                  {msg.results && (
+                    <div className="mt-3 p-3 bg-gray-100 rounded border border-gray-200">
+                      <div className="text-xs text-accent-green font-medium mb-2">Results:</div>
+                      <div className="text-xs text-gray-700 overflow-x-auto">
+                        <pre>{JSON.stringify(msg.results, null, 2)}</pre>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Input Area */}
-        <div className="bg-dark-surface rounded-2xl border border-dark-border p-6">
-          <div className="flex space-x-4">
-            <Input
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Ask something like: 'Show me total sales by region'"
-              className="flex-1 bg-dark-elevated border-dark-border text-white placeholder-gray-400 rounded-xl px-6 py-4 text-lg focus:border-neon-blue focus:ring-neon-blue/20"
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-            />
-            <Button
-              onClick={handleSendMessage}
-              disabled={!inputValue.trim() || isLoading}
-              className="bg-gradient-to-r from-neon-blue to-neon-cyan hover:from-neon-cyan hover:to-neon-blue rounded-xl px-8 py-4 text-lg font-semibold transition-all duration-300 transform hover:scale-105 disabled:opacity-50"
-            >
-              <Send className="w-5 h-5" />
-            </Button>
+              </div>
+            ))}
           </div>
-          
-          <div className="flex items-center mt-4 text-sm text-gray-400">
-            <Bot className="w-4 h-4 mr-2 text-neon-blue" />
-            <span>Powered by Gemini AI • Press Enter to send</span>
-          </div>
-        </div>
+        )}
       </div>
-    </section>
+
+      {/* Input area */}
+      <div className="flex items-center space-x-4">
+        <Input
+          className="flex-1 bg-white border-gray-300 text-gray-900 placeholder-gray-500 rounded-xl px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg focus:border-accent-blue focus:ring-accent-blue/20"
+          type="text"
+          placeholder="Type your message..."
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+          disabled={isLoading}
+        />
+        <Button
+          onClick={handleSendMessage}
+          disabled={isLoading || !inputValue.trim()}
+          className="bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white px-4 py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Send className="w-4 h-4" />
+        </Button>
+      </div>
+
+      {/* Powered by Gemini AI */}
+      <div className="flex items-center justify-between mt-2 text-xs text-gray-600 bg-gray-100 rounded-xl px-4 py-2">
+        <div className="flex items-center space-x-2">
+          <Bot className="w-4 h-4" />
+          <span>Powered by Gemini AI</span>
+        </div>
+        <span>Press Enter to send</span>
+      </div>
+    </div>
   );
 };
 

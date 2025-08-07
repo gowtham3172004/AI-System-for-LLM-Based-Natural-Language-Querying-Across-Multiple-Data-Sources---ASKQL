@@ -93,17 +93,17 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-dark-bg">
+    <div className="min-h-screen bg-white">
       <Navigation />
       
-      <div className="flex items-center justify-center min-h-screen px-4 py-12">
+      <div className="flex items-center justify-center min-h-screen px-4 py-12 pt-24">
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-neon-blue to-neon-violet bg-clip-text text-transparent mb-2">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-accent-blue to-accent-violet bg-clip-text text-transparent mb-2">
               {isLogin ? 'Welcome Back' : 'Join AskQL'}
             </h1>
-            <p className="text-gray-400">
+            <p className="text-gray-600">
               {isLogin 
                 ? 'Sign in to your account to continue' 
                 : 'Create your account to get started'
@@ -112,12 +112,12 @@ const Auth = () => {
           </div>
 
           {/* Auth Card */}
-          <Card className="bg-dark-surface border-dark-border">
+          <Card className="bg-[#18181b] border-light-border">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-white">
+              <CardTitle className="text-2xl text-gray-900">
                 {isLogin ? 'Sign In' : 'Sign Up'}
               </CardTitle>
-              <CardDescription className="text-gray-400">
+              <CardDescription className="text-gray-600">
                 {isLogin 
                   ? 'Enter your email and password to sign in' 
                   : 'Enter your details to create your account'
@@ -131,14 +131,14 @@ const Auth = () => {
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-gray-300">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 w-4 h-4" />
                     <Input
                       id="email"
                       type="email"
                       placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 bg-dark-elevated border-dark-border text-white placeholder-gray-400 focus:border-neon-blue focus:ring-neon-blue/20"
+                      className="pl-10 bg-light-elevated border-light-border text-gray-900 placeholder-gray-400 focus:border-accent-blue focus:ring-accent-blue/20"
                       required
                     />
                   </div>
@@ -148,21 +148,21 @@ const Auth = () => {
                 <div className="space-y-2">
                   <Label htmlFor="password" className="text-gray-300">Password</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 w-4 h-4" />
                     <Input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
                       placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 pr-10 bg-dark-elevated border-dark-border text-white placeholder-gray-400 focus:border-neon-blue focus:ring-neon-blue/20"
+                      className="pl-10 pr-10 bg-light-elevated border-light-border text-gray-900 placeholder-gray-400 focus:border-accent-blue focus:ring-accent-blue/20"
                       required
                       minLength={6}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-neon-blue transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-accent-blue transition-colors"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -172,8 +172,8 @@ const Auth = () => {
                 {/* Submit Button */}
                 <Button
                   type="submit"
+                  className="w-full bg-gradient-to-r from-accent-blue to-accent-cyan hover:from-accent-cyan hover:to-accent-blue text-gray-900 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-neon-blue to-neon-cyan hover:from-neon-cyan hover:to-neon-blue transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
                 >
                   {isLoading ? (
                     <div className="flex items-center space-x-2">
@@ -191,13 +191,13 @@ const Auth = () => {
 
               {/* Toggle Form */}
               <div className="mt-6 text-center">
-                <p className="text-gray-400">
+                <p className="text-gray-600">
                   {isLogin ? "Don't have an account?" : "Already have an account?"}
                   {' '}
                   <button
                     type="button"
                     onClick={() => setIsLogin(!isLogin)}
-                    className="text-neon-blue hover:text-neon-cyan transition-colors font-medium"
+                    className="text-accent-blue hover:text-accent-cyan transition-colors font-medium"
                   >
                     {isLogin ? 'Sign up' : 'Sign in'}
                   </button>
@@ -212,6 +212,18 @@ const Auth = () => {
           </div>
         </div>
       </div>
+
+      {/* Copyright Section */}
+      <footer className="mt-16 py-8 border-t border-light-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-gray-600 text-sm">
+              © 2024 AskQL. All rights reserved. | 
+              <span className="text-accent-blue"> Powered by AI-driven SQL analytics</span>
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

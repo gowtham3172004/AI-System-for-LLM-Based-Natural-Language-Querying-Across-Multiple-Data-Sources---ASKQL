@@ -41,35 +41,35 @@ const QueryHistory = () => {
   };
 
   return (
-    <div className="min-h-screen bg-dark-bg">
+    <div className="min-h-screen bg-white">
       <Navigation />
       
-      <div className="max-w-6xl mx-auto px-4 py-12">
+      <div className="max-w-6xl mx-auto px-4 py-12 pt-24">
         <div className="mb-12">
-          <h1 className="text-4xl font-bold text-white mb-4">Query History</h1>
-          <p className="text-gray-400 text-lg">Review, copy, and re-run your previous queries</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Query History</h1>
+          <p className="text-gray-600 text-lg">Review, copy, and re-run your previous queries</p>
         </div>
 
         {/* Search and Filter Controls */}
-        <div className="bg-dark-surface rounded-2xl border border-dark-border p-6 mb-8">
+        <div className="bg-light-surface rounded-2xl border border-light-border p-6 mb-8">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 w-5 h-5" />
               <Input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search queries or questions..."
-                className="pl-10 bg-dark-elevated border-dark-border text-white placeholder-gray-400"
+                className="pl-10 bg-light-elevated border-light-border text-gray-900 placeholder-gray-400"
               />
             </div>
             
             <div className="flex gap-3">
               <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-40 bg-dark-elevated border-dark-border text-white">
+                <SelectTrigger className="w-40 bg-light-elevated border-light-border text-gray-900">
                   <Filter className="w-4 h-4 mr-2" />
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-dark-elevated border-dark-border">
+                <SelectContent className="bg-light-elevated border-light-border">
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="success">Success</SelectItem>
                   <SelectItem value="error">Error</SelectItem>
@@ -83,7 +83,7 @@ const QueryHistory = () => {
                   }
                 }}
                 variant="outline"
-                className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                className="border-red-500 text-red-500 hover:bg-red-500 hover:text-gray-900"
                 disabled={queryHistory.length === 0 || isLoading}
               >
                 <Trash2 className="w-4 h-4 mr-2" />
@@ -95,10 +95,10 @@ const QueryHistory = () => {
 
         {/* Query History List */}
         {filteredHistory.length === 0 ? (
-          <div className="bg-dark-surface rounded-2xl border border-dark-border p-12 text-center">
+          <div className="bg-light-surface rounded-2xl border border-light-border p-12 text-center">
             <Clock className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">No queries found</h3>
-            <p className="text-gray-400">
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No queries found</h3>
+            <p className="text-black">
               {searchTerm ? 'Try adjusting your search terms' : 'Start asking questions to build your query history'}
             </p>
           </div>
@@ -107,26 +107,26 @@ const QueryHistory = () => {
             {filteredHistory.map((item) => (
               <div
                 key={item.id}
-                className="bg-dark-surface rounded-2xl border border-dark-border p-6 hover:border-neon-blue/30 transition-all group"
+                className="bg-light-surface rounded-2xl border border-light-border p-6 hover:border-accent-blue/30 transition-all group"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-neon-blue transition-colors">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-accent-blue transition-colors">
                       {item.question}
                     </h3>
-                    <div className="flex items-center space-x-4 text-sm text-gray-400">
+                    <div className="flex items-center space-x-4 text-sm text-gray-600">
                     <div className="flex items-center space-x-1">
                       <Clock className="w-4 h-4" />
                       <span>{new Date(item.created_at).toLocaleString()}</span>
                     </div>
                       {item.execution_time && (
-                        <span className="bg-dark-elevated px-2 py-1 rounded">
+                        <span className="bg-light-elevated px-2 py-1 rounded">
                           {item.execution_time}s
                         </span>
                       )}
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
                         item.status === 'success' 
-                          ? 'bg-neon-green/20 text-neon-green' 
+                          ? 'bg-accent-green/20 text-accent-green' 
                           : 'bg-red-500/20 text-red-400'
                       }`}>
                         {item.status}
@@ -140,7 +140,7 @@ const QueryHistory = () => {
                         size="sm"
                         variant="ghost"
                         onClick={() => copyQuery(item.query)}
-                        className="text-gray-400 hover:text-neon-blue opacity-0 group-hover:opacity-100 transition-all"
+                        className="text-gray-600 hover:text-accent-blue opacity-0 group-hover:opacity-100 transition-all"
                       >
                         <Copy className="w-4 h-4" />
                       </Button>
@@ -150,7 +150,7 @@ const QueryHistory = () => {
                         size="sm"
                         variant="ghost"
                         onClick={() => rerunQuery(item)}
-                        className="text-gray-400 hover:text-neon-green opacity-0 group-hover:opacity-100 transition-all"
+                        className="text-gray-600 hover:text-accent-green opacity-0 group-hover:opacity-100 transition-all"
                       >
                         <Play className="w-4 h-4" />
                       </Button>
@@ -159,15 +159,15 @@ const QueryHistory = () => {
                 </div>
                 
                 {item.query && (
-                  <div className="bg-dark-bg rounded-lg p-4 border border-dark-border">
-                    <pre className="text-sm text-gray-300 overflow-x-auto">
+                  <div className="bg-light-bg rounded-lg p-4 border border-light-border">
+                    <pre className="text-sm text-black overflow-x-auto">
                       <code>{item.query}</code>
                     </pre>
                   </div>
                 )}
                 
-                <div className="bg-dark-bg rounded-lg p-4 border border-dark-border mt-2">
-                  <div className="text-sm text-gray-300 whitespace-pre-wrap">
+                <div className="bg-light-bg rounded-lg p-4 border border-light-border mt-2">
+                  <div className="text-sm text-black whitespace-pre-wrap">
                     {item.response}
                   </div>
                 </div>
@@ -176,6 +176,18 @@ const QueryHistory = () => {
           </div>
         )}
       </div>
+
+      {/* Copyright Section */}
+      <footer className="mt-16 py-8 border-t border-light-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-gray-600 text-sm">
+              © 2024 AskQL. All rights reserved. | 
+              <span className="text-accent-blue"> Powered by AI-driven SQL analytics</span>
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

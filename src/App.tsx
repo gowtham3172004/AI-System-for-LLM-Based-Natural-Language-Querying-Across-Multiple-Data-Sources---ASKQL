@@ -9,6 +9,8 @@ import { AppStateProvider } from "./contexts/AppStateContext";
 import { UserQueryHistoryProvider } from "./contexts/UserQueryHistoryContext";
 import { ChatSessionProvider } from "./contexts/ChatSessionContext";
 import Index from "./pages/Index";
+import Chatbot from "./pages/Chatbot";
+import Dashboard from "./pages/Dashboard";
 import QueryHistory from "./pages/QueryHistory";
 import Help from "./pages/Help";
 import About from "./pages/About";
@@ -29,6 +31,8 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/chatbot" element={<Chatbot />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/history" element={<QueryHistory />} />
               <Route path="/help" element={<Help />} />
               <Route path="/about" element={<About />} />

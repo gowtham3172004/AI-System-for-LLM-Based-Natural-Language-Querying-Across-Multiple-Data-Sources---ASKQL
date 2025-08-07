@@ -166,9 +166,24 @@ serve(async (req) => {
       messageHistory = []
     }: GenerateSQLRequest = await req.json();
     
-    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+    const geminiApiKey = Deno.env.get('GEMINI_API_KEY') || 'AIzaSyCXi5pVzszxkgyfsUxhaglOncOpisGwS44';
     if (!geminiApiKey) {
-      throw new Error('GEMINI_API_KEY not found in environment variables');
+      console.error('GEMINI_API_KEY not found in environment variables');
+      
+      // Mock response for testing when API key is not set
+      const mockResponse = {
+        success: true,
+        response: "Hi! I'm AskQL, your AI SQL assistant. I'm currently in demo mode. To enable full functionality, please configure the GEMINI_API_KEY in your Supabase project settings.",
+        sqlQuery: null,
+        explanation: "Demo mode: This is a placeholder response. Configure GEMINI_API_KEY in Supabase settings for full functionality.",
+        schema: schema || null,
+        results: null,
+        mode
+      };
+      
+      return new Response(JSON.stringify(mockResponse), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     // Enhanced system prompt for different modes

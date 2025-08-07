@@ -144,10 +144,10 @@ CREATE TABLE sample_table (
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-dark-surface border-dark-border max-w-md">
+      <DialogContent className="bg-light-surface border-light-border max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-white flex items-center">
-            <Database className="w-6 h-6 mr-3 text-neon-violet" />
+          <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center">
+            <Database className="w-6 h-6 mr-3 text-accent-violet" />
             Connect to Database
           </DialogTitle>
         </DialogHeader>
@@ -155,12 +155,12 @@ CREATE TABLE sample_table (
         <div className="space-y-6">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="db-type" className="text-white">Database Type</Label>
+              <Label htmlFor="db-type" className="text-gray-900">Database Type</Label>
               <Select value={formData.type} onValueChange={(value) => handleInputChange('type', value)}>
-                <SelectTrigger className="bg-dark-elevated border-dark-border text-white">
+                <SelectTrigger className="bg-light-elevated border-light-border text-gray-900">
                   <SelectValue placeholder="Select database type" />
                 </SelectTrigger>
-                <SelectContent className="bg-dark-elevated border-dark-border">
+                <SelectContent className="bg-light-elevated border-light-border">
                   <SelectItem value="mysql">MySQL</SelectItem>
                   <SelectItem value="postgresql">PostgreSQL</SelectItem>
                   <SelectItem value="sqlite">SQLite</SelectItem>
@@ -172,40 +172,40 @@ CREATE TABLE sample_table (
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="host" className="text-white">Host</Label>
+                <Label htmlFor="host" className="text-gray-900">Host</Label>
                 <Input
                   id="host"
                   value={formData.host}
                   onChange={(e) => handleInputChange('host', e.target.value)}
                   placeholder="localhost"
-                  className="bg-dark-elevated border-dark-border text-white placeholder-gray-400"
+                  className="bg-light-elevated border-light-border text-gray-900 placeholder-gray-400"
                 />
               </div>
               <div>
-                <Label htmlFor="port" className="text-white">Port</Label>
+                <Label htmlFor="port" className="text-gray-900">Port</Label>
                 <Input
                   id="port"
                   value={formData.port}
                   onChange={(e) => handleInputChange('port', e.target.value)}
                   placeholder="3306"
-                  className="bg-dark-elevated border-dark-border text-white placeholder-gray-400"
+                  className="bg-light-elevated border-light-border text-gray-900 placeholder-gray-400"
                 />
               </div>
             </div>
 
             <div>
-              <Label htmlFor="username" className="text-white">Username</Label>
+              <Label htmlFor="username" className="text-gray-900">Username</Label>
               <Input
                 id="username"
                 value={formData.username}
                 onChange={(e) => handleInputChange('username', e.target.value)}
                 placeholder="username"
-                className="bg-dark-elevated border-dark-border text-white placeholder-gray-400"
+                className="bg-light-elevated border-light-border text-gray-900 placeholder-gray-400"
               />
             </div>
 
             <div>
-              <Label htmlFor="password" className="text-white">Password</Label>
+              <Label htmlFor="password" className="text-gray-900">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -213,12 +213,12 @@ CREATE TABLE sample_table (
                   value={formData.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
                   placeholder="password"
-                  className="bg-dark-elevated border-dark-border text-white placeholder-gray-400 pr-10"
+                  className="bg-light-elevated border-light-border text-gray-900 placeholder-gray-400 pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-900"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -226,13 +226,13 @@ CREATE TABLE sample_table (
             </div>
 
             <div>
-              <Label htmlFor="database" className="text-white">Database Name</Label>
+              <Label htmlFor="database" className="text-gray-900">Database Name</Label>
               <Input
                 id="database"
                 value={formData.database}
                 onChange={(e) => handleInputChange('database', e.target.value)}
                 placeholder="database_name"
-                className="bg-dark-elevated border-dark-border text-white placeholder-gray-400"
+                className="bg-light-elevated border-light-border text-gray-900 placeholder-gray-400"
               />
             </div>
           </div>
@@ -241,7 +241,7 @@ CREATE TABLE sample_table (
             <Button
               onClick={testConnection}
               variant="outline"
-              className="flex-1 border-dark-border text-gray-300 hover:bg-dark-elevated"
+              className="flex-1 border-light-border text-gray-700 hover:bg-light-elevated"
               disabled={isConnecting}
             >
               Test Connection
@@ -249,7 +249,7 @@ CREATE TABLE sample_table (
             <Button
               onClick={handleConnect}
               disabled={isConnecting}
-              className="flex-1 bg-gradient-to-r from-neon-violet to-neon-pink hover:from-neon-pink hover:to-neon-violet transition-all"
+              className="flex-1 bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white transition-all"
             >
               {isConnecting ? (
                 <div className="flex items-center space-x-2">

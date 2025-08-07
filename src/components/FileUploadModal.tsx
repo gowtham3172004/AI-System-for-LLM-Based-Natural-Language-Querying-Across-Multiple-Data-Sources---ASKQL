@@ -130,10 +130,10 @@ const FileUploadModal = ({ open, onOpenChange, onFileUploaded }: FileUploadModal
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-dark-surface border-dark-border max-w-lg">
+      <DialogContent className="bg-light-surface border-light-border max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-white flex items-center">
-            <Upload className="w-6 h-6 mr-3 text-neon-blue" />
+          <DialogTitle className="text-2xl font-bold text-gray-900 flex items-center">
+            <Upload className="w-6 h-6 mr-3 text-sky-500" />
             Upload Your Data File
           </DialogTitle>
         </DialogHeader>
@@ -143,8 +143,8 @@ const FileUploadModal = ({ open, onOpenChange, onFileUploaded }: FileUploadModal
             <div
               className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all ${
                 dragActive 
-                  ? 'border-neon-blue bg-neon-blue/10' 
-                  : 'border-dark-border hover:border-neon-blue/50'
+                  ? 'border-accent-blue bg-accent-blue/10' 
+                  : 'border-light-border hover:border-accent-blue/50'
               }`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
@@ -153,21 +153,21 @@ const FileUploadModal = ({ open, onOpenChange, onFileUploaded }: FileUploadModal
             >
               {isUploading ? (
                 <div className="space-y-4">
-                  <div className="w-16 h-16 mx-auto bg-gradient-to-r from-neon-blue to-neon-cyan rounded-full flex items-center justify-center animate-pulse">
+                  <div className="w-16 h-16 mx-auto bg-sky-500 rounded-full flex items-center justify-center animate-pulse">
                     <Upload className="w-8 h-8 text-white" />
                   </div>
-                  <p className="text-white font-medium">Uploading your file...</p>
+                  <p className="text-gray-900 font-medium">Uploading your file...</p>
                   <div className="w-full bg-dark-border rounded-full h-2">
-                    <div className="bg-gradient-to-r from-neon-blue to-neon-cyan h-2 rounded-full animate-pulse w-3/4"></div>
+                    <div className="bg-sky-500 h-2 rounded-full animate-pulse w-3/4"></div>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="w-16 h-16 mx-auto bg-gradient-to-r from-neon-blue to-neon-cyan rounded-full flex items-center justify-center">
+                  <div className="w-16 h-16 mx-auto bg-sky-500 rounded-full flex items-center justify-center">
                     <Upload className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <p className="text-white font-medium mb-2">
+                    <p className="text-gray-900 font-medium mb-2">
                       Drag & drop your file here, or click to browse
                     </p>
                     <p className="text-gray-400 text-sm">
@@ -176,7 +176,7 @@ const FileUploadModal = ({ open, onOpenChange, onFileUploaded }: FileUploadModal
                   </div>
                   <Button
                     onClick={() => document.getElementById('file-input')?.click()}
-                    className="bg-gradient-to-r from-neon-blue to-neon-cyan hover:from-neon-cyan hover:to-neon-blue transition-all"
+                    className="bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white transition-all"
                   >
                     Choose File
                   </Button>
@@ -191,20 +191,20 @@ const FileUploadModal = ({ open, onOpenChange, onFileUploaded }: FileUploadModal
               )}
             </div>
           ) : (
-            <div className="bg-dark-elevated rounded-2xl p-6 border border-dark-border">
+            <div className="bg-light-elevated rounded-2xl p-6 border border-light-border">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-gradient-to-r from-neon-green to-neon-cyan rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-sky-500 rounded-lg flex items-center justify-center">
                     <FileText className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-white font-medium">{uploadedFile.name}</h3>
+                    <h3 className="text-gray-900 font-medium">{uploadedFile.name}</h3>
                     <p className="text-gray-400 text-sm">
                       {(uploadedFile.size / 1024 / 1024).toFixed(2)} MB
                     </p>
                   </div>
                 </div>
-                <CheckCircle className="w-6 h-6 text-neon-green" />
+                <CheckCircle className="w-6 h-6 text-sky-500" />
               </div>
             </div>
           )}
@@ -214,13 +214,13 @@ const FileUploadModal = ({ open, onOpenChange, onFileUploaded }: FileUploadModal
               <Button
                 onClick={() => setUploadedFile(null)}
                 variant="outline"
-                className="flex-1 border-dark-border text-gray-300 hover:bg-dark-elevated"
+                className="flex-1 border-light-border text-gray-700 hover:bg-light-elevated"
               >
                 Upload Different File
               </Button>
               <Button
                 onClick={handleConnect}
-                className="flex-1 bg-gradient-to-r from-neon-green to-neon-cyan hover:from-neon-cyan hover:to-neon-green transition-all"
+                className="flex-1 bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white transition-all"
               >
                 Connect Data Source
               </Button>

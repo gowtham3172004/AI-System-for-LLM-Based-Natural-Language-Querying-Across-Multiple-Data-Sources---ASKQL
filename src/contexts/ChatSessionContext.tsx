@@ -41,6 +41,10 @@ export const ChatSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   // Generate new session ID
   const generateSessionId = () => {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    // fallback for older browsers
     return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
   };
 
