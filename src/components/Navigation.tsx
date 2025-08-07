@@ -79,106 +79,52 @@ const Navigation = () => {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 mx-4 sm:mx-6 lg:mx-8 transition-transform duration-300 ${
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${
       isVisible ? 'translate-y-4' : '-translate-y-full'
     }`}>
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-2xl">
-        <div className="flex justify-between items-center h-16 px-6">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 group">
-            <div className="w-8 h-8 bg-gradient-to-r from-accent-blue to-accent-violet rounded-lg flex items-center justify-center group-hover:animate-pulse-neon transition-all transform group-hover:scale-110 ">
-              <Database className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-accent-blue to-accent-violet bg-clip-text text-transparent ">
-              AskQL
-            </span>
-          </Link>
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-6">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 ${
-                  isActive(item.path)
-                    ? 'text-accent-blue font-bold underline underline-offset-4'
-                    : 'text-gray-700 hover:text-accent-blue'
-                }`}
-              >
-                <item.icon className="w-4 h-4" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
-            {/* Auth Button */}
-            {user ? (
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 text-gray-700">
-                  <User className="w-4 h-4" />
-                  <span className="text-sm">{user.email}</span>
-                </div>
-                <Button
-                  onClick={handleSignOut}
-                  variant="outline"
-                  size="sm"
-                  className="bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
-                </Button>
+      {/* Desktop Navigation */}
+      <div className="hidden lg:block mx-4 sm:mx-6 lg:mx-8">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-2xl">
+          <div className="flex justify-between items-center h-16 px-6">
+            {/* Logo */}
+            <Link to="/" className="flex items-center space-x-2 group">
+              <div className="w-8 h-8 bg-gradient-to-r from-accent-blue to-accent-violet rounded-lg flex items-center justify-center group-hover:animate-pulse-neon transition-all transform group-hover:scale-110">
+                <Database className="w-5 h-5 text-white" />
               </div>
-            ) : (
-              <Button
-                onClick={() => navigate('/auth')}
-                variant="outline"
-                size="sm"
-                className="bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white"
-              >
-                <LogIn className="w-4 h-4 mr-2" />
-                Sign In
-              </Button>
-            )}
-          </div>
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="lg:hidden p-2 rounded-lg text-white hover:text-neon-blue hover:bg-[#18181b] transition-colors"
-          >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="lg:hidden bg-[#18181b] rounded-lg mt-2 p-4 animate-slide-up mx-4 mb-4">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setIsMenuOpen(false)}
-                className={`flex items-center space-x-3 p-3 rounded-lg transition-all ${
-                  isActive(item.path)
-                    ? 'text-neon-blue font-bold underline underline-offset-4'
-                    : 'text-white hover:text-neon-blue'
-                }`}
-              >
-                <item.icon className="w-5 h-5" />
-                <span>{item.label}</span>
-              </Link>
-            ))}
-            {/* Mobile Auth */}
-            <div className="border-t border-light-border mt-4 pt-4">
+              <span className="text-2xl font-bold bg-gradient-to-r from-accent-blue to-accent-violet bg-clip-text text-transparent">
+                AskQL
+              </span>
+            </Link>
+            
+            {/* Desktop Navigation Items */}
+            <div className="flex items-center space-x-6">
+              {navItems.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 ${
+                    isActive(item.path)
+                      ? 'text-accent-blue font-bold underline underline-offset-4'
+                      : 'text-gray-700 hover:text-accent-blue'
+                  }`}
+                >
+                  <item.icon className="w-4 h-4" />
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+              
+              {/* Desktop Auth Button */}
               {user ? (
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2 text-white p-3">
-                    <User className="w-5 h-5" />
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2 text-gray-700">
+                    <User className="w-4 h-4" />
                     <span className="text-sm">{user.email}</span>
                   </div>
                   <Button
-                    onClick={() => {
-                      handleSignOut();
-                      setIsMenuOpen(false);
-                    }}
+                    onClick={handleSignOut}
                     variant="outline"
-                    className="w-full border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                    size="sm"
+                    className="bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out
@@ -186,12 +132,10 @@ const Navigation = () => {
                 </div>
               ) : (
                 <Button
-                  onClick={() => {
-                    navigate('/auth');
-                    setIsMenuOpen(false);
-                  }}
+                  onClick={() => navigate('/auth')}
                   variant="outline"
-                  className="w-full border-neon-blue text-neon-blue hover:bg-neon-blue hover:text-black"
+                  size="sm"
+                  className="bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white"
                 >
                   <LogIn className="w-4 h-4 mr-2" />
                   Sign In
@@ -199,7 +143,91 @@ const Navigation = () => {
               )}
             </div>
           </div>
-        )}
+        </div>
+      </div>
+
+      {/* Mobile Navigation */}
+      <div className="lg:hidden">
+        {/* Mobile Navigation Bar - Black Background */}
+        <div className="bg-black mx-4 rounded-2xl shadow-2xl">
+          <div className="flex justify-between items-center h-16 px-4">
+            {/* Mobile Logo */}
+            <Link to="/" className="flex items-center space-x-2 group">
+              <div className="w-8 h-8 bg-gradient-to-r from-accent-blue to-accent-violet rounded-lg flex items-center justify-center group-hover:animate-pulse-neon transition-all transform group-hover:scale-110">
+                <Database className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold text-white">
+                AskQL
+              </span>
+            </Link>
+            
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 rounded-lg text-white hover:text-accent-blue hover:bg-gray-800 transition-colors"
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+          
+          {/* Mobile Navigation Menu - White Background with Black Text */}
+          {isMenuOpen && (
+            <div className="bg-white rounded-lg mt-2 mx-4 mb-4 shadow-xl animate-slide-up">
+              <div className="p-4">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`flex items-center space-x-3 p-3 rounded-lg transition-all ${
+                      isActive(item.path)
+                        ? 'text-accent-blue font-bold bg-accent-blue/10 border border-accent-blue/20'
+                        : 'text-black hover:text-accent-blue hover:bg-gray-50'
+                    }`}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    <span className="font-medium">{item.label}</span>
+                  </Link>
+                ))}
+                
+                {/* Mobile Auth Section */}
+                <div className="border-t border-gray-200 mt-4 pt-4">
+                  {user ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2 text-black p-3 bg-gray-50 rounded-lg">
+                        <User className="w-5 h-5 text-gray-600" />
+                        <span className="text-sm font-medium">{user.email}</span>
+                      </div>
+                      <Button
+                        onClick={() => {
+                          handleSignOut();
+                          setIsMenuOpen(false);
+                        }}
+                        variant="outline"
+                        className="w-full border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Sign Out
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        navigate('/auth');
+                        setIsMenuOpen(false);
+                      }}
+                      variant="outline"
+                      className="w-full border-accent-blue text-accent-blue hover:bg-accent-blue hover:text-white"
+                    >
+                      <LogIn className="w-4 h-4 mr-2" />
+                      Sign In
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );

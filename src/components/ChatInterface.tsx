@@ -144,29 +144,29 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
   };
 
   return (
-    <div className="flex flex-col h-[600px] sm:h-[700px]">
+    <div className="flex flex-col h-[500px] sm:h-[600px] md:h-[700px]">
       {/* Chat message area */}
-      <div className="flex-1 bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 mb-6 min-h-[300px] sm:min-h-[400px] max-h-[500px] sm:max-h-[600px] overflow-y-auto">
+      <div className="flex-1 bg-white rounded-2xl border border-gray-200 p-3 sm:p-4 md:p-6 mb-4 sm:mb-6 min-h-[250px] sm:min-h-[300px] md:min-h-[400px] max-h-[400px] sm:max-h-[500px] md:max-h-[600px] overflow-y-auto">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <Bot className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-              <p className="text-gray-600 text-lg">Ask me anything about your data!</p>
+              <Bot className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 text-gray-500 mx-auto mb-3 sm:mb-4" />
+              <p className="text-gray-600 text-sm sm:text-base md:text-lg">Ask me anything about your data!</p>
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {messages.map((msg, index) => (
               <div key={index} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] rounded-lg px-4 py-3 ${
+                <div className={`max-w-[85%] sm:max-w-[80%] rounded-lg px-3 sm:px-4 py-2 sm:py-3 ${
                   msg.type === 'user' 
                     ? 'bg-gradient-to-r from-accent-blue/20 to-accent-cyan/20 border border-accent-blue/30 text-gray-900' 
                     : 'bg-gray-50 border border-gray-200 text-gray-900'
                 }`}>
-                  <div className="text-sm">{msg.content}</div>
+                  <div className="text-xs sm:text-sm md:text-base">{msg.content}</div>
                   {msg.query && (
-                    <div className="mt-3 p-3 bg-gray-100 rounded border border-gray-200">
-                      <div className="text-xs text-accent-green font-medium mb-2">Generated SQL:</div>
+                    <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-gray-100 rounded border border-gray-200">
+                      <div className="text-xs text-accent-green font-medium mb-1 sm:mb-2">Generated SQL:</div>
                       <pre className="text-xs text-gray-700 overflow-x-auto">{msg.query}</pre>
                       <div className="flex gap-2 mt-2">
                         <button
@@ -179,8 +179,8 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
                     </div>
                   )}
                   {msg.results && (
-                    <div className="mt-3 p-3 bg-gray-100 rounded border border-gray-200">
-                      <div className="text-xs text-accent-green font-medium mb-2">Results:</div>
+                    <div className="mt-2 sm:mt-3 p-2 sm:p-3 bg-gray-100 rounded border border-gray-200">
+                      <div className="text-xs text-accent-green font-medium mb-1 sm:mb-2">Results:</div>
                       <div className="text-xs text-gray-700 overflow-x-auto">
                         <pre>{JSON.stringify(msg.results, null, 2)}</pre>
                       </div>
@@ -194,9 +194,9 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
       </div>
 
       {/* Input area */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2 sm:space-x-4">
         <Input
-          className="flex-1 bg-white border-gray-300 text-gray-900 placeholder-gray-500 rounded-xl px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg focus:border-accent-blue focus:ring-accent-blue/20"
+          className="flex-1 bg-white border-gray-300 text-gray-900 placeholder-gray-500 rounded-xl px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 text-sm sm:text-base md:text-lg focus:border-accent-blue focus:ring-accent-blue/20"
           type="text"
           placeholder="Type your message..."
           value={inputValue}
@@ -207,19 +207,19 @@ const ChatInterface = ({ activeDataSource }: ChatInterfaceProps) => {
         <Button
           onClick={handleSendMessage}
           disabled={isLoading || !inputValue.trim()}
-          className="bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white px-4 py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Send className="w-4 h-4" />
         </Button>
       </div>
 
       {/* Powered by Gemini AI */}
-      <div className="flex items-center justify-between mt-2 text-xs text-gray-600 bg-gray-100 rounded-xl px-4 py-2">
+      <div className="flex items-center justify-between mt-2 text-xs text-gray-600 bg-gray-100 rounded-xl px-3 sm:px-4 py-2">
         <div className="flex items-center space-x-2">
-          <Bot className="w-4 h-4" />
-          <span>Powered by Gemini AI</span>
+          <Bot className="w-3 h-3 sm:w-4 sm:h-4" />
+          <span className="text-xs">Powered by Gemini AI</span>
         </div>
-        <span>Press Enter to send</span>
+        <span className="text-xs">Press Enter to send</span>
       </div>
     </div>
   );

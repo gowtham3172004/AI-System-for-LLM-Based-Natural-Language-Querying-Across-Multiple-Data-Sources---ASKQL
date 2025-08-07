@@ -96,14 +96,14 @@ const Auth = () => {
     <div className="min-h-screen bg-white">
       <Navigation />
       
-      <div className="flex items-center justify-center min-h-screen px-4 py-12 pt-24">
+      <div className="flex items-center justify-center min-h-screen px-4 py-12 pt-16 sm:pt-20 md:pt-24">
         <div className="w-full max-w-md">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-accent-blue to-accent-violet bg-clip-text text-transparent mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-accent-blue to-accent-violet bg-clip-text text-transparent mb-2">
               {isLogin ? 'Welcome Back' : 'Join AskQL'}
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-sm sm:text-base">
               {isLogin 
                 ? 'Sign in to your account to continue' 
                 : 'Create your account to get started'
@@ -111,10 +111,10 @@ const Auth = () => {
             </p>
           </div>
 
-          {/* Auth Card */}
-          <Card className="bg-[#18181b] border-light-border">
+          {/* Auth Card - Light Theme */}
+          <Card className="bg-white border border-gray-200 shadow-xl">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-gray-900">
+              <CardTitle className="text-xl sm:text-2xl text-gray-900">
                 {isLogin ? 'Sign In' : 'Sign Up'}
               </CardTitle>
               <CardDescription className="text-gray-600">
@@ -129,16 +129,16 @@ const Auth = () => {
               <form onSubmit={handleAuth} className="space-y-4">
                 {/* Email Field */}
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-gray-300">Email</Label>
+                  <Label htmlFor="email" className="text-gray-900 font-medium">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 w-4 h-4" />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
                     <Input
                       id="email"
                       type="email"
                       placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="pl-10 bg-light-elevated border-light-border text-gray-900 placeholder-gray-400 focus:border-accent-blue focus:ring-accent-blue/20"
+                      className="pl-10 bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-accent-blue focus:ring-accent-blue/20"
                       required
                     />
                   </div>
@@ -146,23 +146,23 @@ const Auth = () => {
 
                 {/* Password Field */}
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-gray-300">Password</Label>
+                  <Label htmlFor="password" className="text-gray-900 font-medium">Password</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-600 w-4 h-4" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
                     <Input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
                       placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 pr-10 bg-light-elevated border-light-border text-gray-900 placeholder-gray-400 focus:border-accent-blue focus:ring-accent-blue/20"
+                      className="pl-10 pr-10 bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-accent-blue focus:ring-accent-blue/20"
                       required
                       minLength={6}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-accent-blue transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-accent-blue transition-colors"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -172,7 +172,7 @@ const Auth = () => {
                 {/* Submit Button */}
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-accent-blue to-accent-cyan hover:from-accent-cyan hover:to-accent-blue text-gray-900 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
+                  className="w-full bg-gradient-to-r from-accent-blue to-accent-cyan hover:from-accent-cyan hover:to-accent-blue text-white transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -191,7 +191,7 @@ const Auth = () => {
 
               {/* Toggle Form */}
               <div className="mt-6 text-center">
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-sm sm:text-base">
                   {isLogin ? "Don't have an account?" : "Already have an account?"}
                   {' '}
                   <button
@@ -207,17 +207,17 @@ const Auth = () => {
           </Card>
 
           {/* Additional Info */}
-          <div className="mt-8 text-center text-sm text-gray-500">
+          <div className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-gray-500">
             <p>By signing up, you agree to our Terms of Service and Privacy Policy.</p>
           </div>
         </div>
       </div>
 
       {/* Copyright Section */}
-      <footer className="mt-16 py-8 border-t border-light-border">
+      <footer className="mt-8 sm:mt-12 md:mt-16 py-6 sm:py-8 border-t border-light-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-xs sm:text-sm">
               © 2024 AskQL. All rights reserved. | 
               <span className="text-accent-blue"> Powered by AI-driven SQL analytics</span>
             </p>

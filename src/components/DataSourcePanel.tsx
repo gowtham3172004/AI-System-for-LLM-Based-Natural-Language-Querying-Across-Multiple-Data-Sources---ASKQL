@@ -88,33 +88,33 @@ const DataSourcePanel = ({ onDataSourceChange }: DataSourcePanelProps) => {
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 p-4 mb-4">
-      <div className="text-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Data Sources</h3>
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-3">
+    <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-gray-200 p-3 sm:p-4 mb-4">
+      <div className="text-center mb-3 sm:mb-4">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 sm:mb-3">Data Sources</h3>
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-3">
           <Button
             onClick={() => setShowFileUpload(true)}
             size="sm"
-            className="w-full sm:w-auto bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white"
+            className="w-full sm:w-auto bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white text-xs sm:text-sm"
           >
-            <Upload className="w-4 h-4 mr-2 text-sky-100" />
+            <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-sky-100" />
             Upload File
           </Button>
           <Button
             onClick={() => setShowDatabaseModal(true)}
             size="sm"
-            className="w-full sm:w-auto bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white"
+            className="w-full sm:w-auto bg-gradient-to-r from-sky-400 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white text-xs sm:text-sm"
           >
-            <Database className="w-4 h-4 mr-2 text-sky-100" />
+            <Database className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-sky-100" />
             Connect Database
           </Button>
         </div>
       </div>
 
       {dataSources.length === 0 ? (
-        <div className="text-center py-4 text-gray-600">
-          <Plus className="w-8 h-8 mx-auto mb-2" />
-          <p className="text-sm">No data sources connected</p>
+        <div className="text-center py-3 sm:py-4 text-gray-600">
+          <Plus className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2" />
+          <p className="text-xs sm:text-sm">No data sources connected</p>
           <p className="text-xs mt-1">Upload a file or connect a database to get started</p>
         </div>
       ) : (
@@ -122,7 +122,7 @@ const DataSourcePanel = ({ onDataSourceChange }: DataSourcePanelProps) => {
           {dataSources.map((source) => (
             <div
               key={source.id}
-              className={`flex items-center justify-between p-3 rounded-lg border transition-all cursor-pointer ${
+              className={`flex items-center justify-between p-2 sm:p-3 rounded-lg border transition-all cursor-pointer ${
                 activeDataSource?.id === source.id
                   ? 'border-accent-blue bg-accent-blue/10'
                   : 'border-gray-200 bg-gray-50 hover:border-accent-blue/50'
@@ -132,17 +132,17 @@ const DataSourcePanel = ({ onDataSourceChange }: DataSourcePanelProps) => {
                 onDataSourceChange(source);
               }}
             >
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-sky-500 rounded-lg flex items-center justify-center">
+              <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-sky-500 rounded-lg flex items-center justify-center">
                   {source.type === 'file' ? (
-                    <FileText className="w-5 h-5 text-white" />
+                    <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   ) : (
-                    <Database className="w-5 h-5 text-white" />
+                    <Database className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   )}
                 </div>
                 <div>
-                  <h4 className="text-gray-900 font-medium">{source.name}</h4>
-                  <p className="text-gray-600 text-sm">
+                  <h4 className="text-gray-900 font-medium text-sm sm:text-base">{source.name}</h4>
+                  <p className="text-gray-600 text-xs sm:text-sm">
                     {source.type === 'file' 
                       ? `${source.data?.length || 0} rows` 
                       : 'Database connection'
@@ -150,8 +150,8 @@ const DataSourcePanel = ({ onDataSourceChange }: DataSourcePanelProps) => {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="w-5 h-5 text-accent-green" />
+              <div className="flex items-center space-x-1 sm:space-x-2">
+                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-accent-green" />
                 <Button
                   size="sm"
                   variant="ghost"
@@ -159,9 +159,9 @@ const DataSourcePanel = ({ onDataSourceChange }: DataSourcePanelProps) => {
                     e.stopPropagation();
                     removeDataSource(source.id);
                   }}
-                  className="text-gray-400 hover:text-red-400"
+                  className="text-gray-400 hover:text-red-400 p-1 sm:p-2"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3 h-3 sm:w-4 sm:h-4" />
                 </Button>
               </div>
             </div>

@@ -10,38 +10,38 @@ const Chatbot = () => {
     <div className="min-h-screen bg-white">
       <Navigation />
       
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pt-16 sm:pt-20 md:pt-24">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">AI SQL Assistant</h1>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">AI SQL Assistant</h1>
+          <p className="text-gray-600 text-sm sm:text-base md:text-lg max-w-2xl mx-auto px-2">
             Ask questions in natural language and get instant SQL queries. Connect your data sources and start analyzing your data with AI-powered insights.
           </p>
         </div>
 
         {/* Data Sources Section */}
-        <div className="mb-8">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">Data Sources</h2>
-            <p className="text-gray-600">Upload files or connect databases to start querying your data</p>
+        <div className="mb-6 sm:mb-8">
+          <div className="text-center mb-4 sm:mb-6">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-2">Data Sources</h2>
+            <p className="text-gray-600 text-sm sm:text-base">Upload files or connect databases to start querying your data</p>
           </div>
           {/* Buttons in black background */}
-          <div className="flex justify-center items-center gap-4 mb-6">
+          <div className="flex justify-center items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
             <DataSourcePanel onDataSourceChange={setActiveDataSource} />
           </div>
         </div>
 
         {/* Chat Interface */}
-        <div className="mt-8">
+        <div className="mt-6 sm:mt-8">
           <ChatInterface activeDataSource={activeDataSource} />
         </div>
       </div>
 
       {/* Copyright Section */}
-      <footer className="mt-16 py-8 border-t border-light-border">
+      <footer className="mt-8 sm:mt-12 md:mt-16 py-6 sm:py-8 border-t border-light-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-xs sm:text-sm">
               © 2024 AskQL. All rights reserved. | 
               <span className="text-accent-blue"> Powered by AI-driven SQL analytics</span>
             </p>

@@ -38,6 +38,23 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-attachment: fixed;
     position: relative;
+    /* Improve mobile touch experience */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Allow text selection for content areas */
+  p, h1, h2, h3, h4, h5, h6, span, div {
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
   }
 
   body::before {
@@ -68,10 +85,171 @@
   .light-text {
     text-shadow: none;
   }
+
+  /* Mobile-specific improvements */
+  @media (max-width: 768px) {
+    /* Improve touch targets */
+    button, [role="button"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    /* Better mobile scrolling */
+    .overflow-y-auto {
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Improve mobile text readability */
+    .text-xs {
+      font-size: 0.75rem;
+      line-height: 1rem;
+    }
+
+    .text-sm {
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+    }
+
+    /* Mobile-friendly spacing */
+    .space-y-2 > * + * {
+      margin-top: 0.5rem;
+    }
+
+    .space-y-3 > * + * {
+      margin-top: 0.75rem;
+    }
+
+    .space-y-4 > * + * {
+      margin-top: 1rem;
+    }
+
+    /* Mobile navigation improvements */
+    .mobile-nav {
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    /* Mobile card improvements */
+    .mobile-card {
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Mobile input improvements */
+    input, textarea {
+      font-size: 16px; /* Prevents zoom on iOS */
+    }
+  }
+
+  /* Tablet improvements */
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .tablet-optimized {
+      padding: 1.5rem;
+    }
+  }
+
+  /* Animation for mobile menu */
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+  }
+
+  /* Mobile-friendly hover states */
+  @media (hover: hover) {
+    .hover\:scale-105:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  /* Disable hover effects on touch devices */
+  @media (hover: none) {
+    .hover\:scale-105:hover {
+      transform: none;
+    }
+  }
 }
 
 @layer utilities {
   .font-inter {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Mobile-first responsive utilities */
+  .mobile-first {
+    @apply text-sm sm:text-base md:text-lg;
+  }
+
+  .mobile-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  .mobile-margin {
+    @apply mx-4 sm:mx-6 lg:mx-8;
+  }
+
+  /* Touch-friendly button sizes */
+  .touch-button {
+    @apply min-h-[44px] min-w-[44px] px-4 py-2;
+  }
+
+  /* Mobile-optimized cards */
+  .mobile-card {
+    @apply rounded-xl sm:rounded-2xl shadow-lg;
+  }
+
+  /* Mobile text sizing */
+  .mobile-text-xs {
+    @apply text-xs sm:text-sm;
+  }
+
+  .mobile-text-sm {
+    @apply text-sm sm:text-base;
+  }
+
+  .mobile-text-base {
+    @apply text-base sm:text-lg;
+  }
+
+  .mobile-text-lg {
+    @apply text-lg sm:text-xl;
+  }
+
+  .mobile-text-xl {
+    @apply text-xl sm:text-2xl;
+  }
+
+  .mobile-text-2xl {
+    @apply text-2xl sm:text-3xl md:text-4xl;
+  }
+
+  .mobile-text-3xl {
+    @apply text-3xl sm:text-4xl md:text-5xl;
+  }
+
+  /* Mobile spacing */
+  .mobile-space-y-2 {
+    @apply space-y-2 sm:space-y-3;
+  }
+
+  .mobile-space-y-4 {
+    @apply space-y-4 sm:space-y-6;
+  }
+
+  .mobile-space-y-6 {
+    @apply space-y-6 sm:space-y-8;
+  }
+
+  .mobile-space-y-8 {
+    @apply space-y-8 sm:space-y-12;
   }
 }
