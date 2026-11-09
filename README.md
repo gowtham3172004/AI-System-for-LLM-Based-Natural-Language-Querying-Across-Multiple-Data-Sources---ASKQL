@@ -1,274 +1,172 @@
-# AskQL - AI-Powered SQL Assistant
+# 🔎 AskQL — Ask your data in plain English
 
-<div align="center">
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)
+![LangGraph](https://img.shields.io/badge/LangGraph-agent-1C3C3C)
+![FastAPI](https://img.shields.io/badge/FastAPI-REST%20API-009688?logo=fastapi&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-UI-FF4B4B?logo=streamlit&logoColor=white)
+![DuckDB](https://img.shields.io/badge/DuckDB-files-FFF000?logo=duckdb&logoColor=black)
 
-![AskQL Logo](https://img.shields.io/badge/AskQL-AI%20SQL%20Assistant-blue?style=for-the-badge&logo=sql)
-![React](https://img.shields.io/badge/React-18.3.1-blue?style=for-the-badge&logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-blue?style=for-the-badge&logo=typescript)
-![Vite](https://img.shields.io/badge/Vite-5.4.1-purple?style=for-the-badge&logo=vite)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4.11-38B2AC?style=for-the-badge&logo=tailwind-css)
+AskQL turns natural-language questions into **validated, read-only SQL**, runs it against **real data**
+(CSV, TSV, Excel, JSON, Parquet, PostgreSQL, MySQL, SQLite) and returns an answer with a chart, insights and
+follow-up suggestions. The answer is written from the actual result rows, and any figure in it that can't be traced
+back to the result table is flagged.
 
-**Transform natural language into powerful SQL queries with AI assistance**
+[REST API](#rest-api) · [Deploy for free](#deploy-for-free) · [What has been verified](#verification-status)
 
-[Live Demo](#) • [Documentation](#) • [Report Bug](#) • [Request Feature](#)
-
-</div>
-
----
-
-## 🚀 Features
-
-### 🤖 AI-Powered Chat Interface
-- **Natural Language Processing**: Ask questions in plain English and get instant SQL queries
-- **Intelligent Suggestions**: AI provides context-aware query suggestions
-- **Real-time Responses**: Get immediate feedback and query results
-- **Conversation History**: Track your query history and learn from past interactions
-
-### 📊 Advanced Analytics Dashboard
-- **Interactive Charts**: Visualize your data with beautiful, responsive charts
-- **Real-time Analytics**: Monitor data performance with live dashboards
-- **Custom Visualizations**: Create custom charts and graphs for your specific needs
-- **Export Capabilities**: Export results in multiple formats (CSV, JSON, PDF)
-
-### 🔗 Multiple Data Sources
-- **Database Connections**: Connect to PostgreSQL, MySQL, SQLite, and more
-- **File Upload Support**: Upload CSV, Excel, and JSON files for analysis
-- **Cloud Storage**: Integrate with cloud storage solutions
-- **Real-time Sync**: Keep your data sources synchronized
-
-### 🛡️ Security & Privacy
-- **Enterprise-grade Encryption**: Your data stays secure with advanced encryption
-- **Privacy Controls**: Granular privacy settings for data access
-- **User Authentication**: Secure login and user management
-- **Audit Logs**: Track all data access and modifications
-
-### 👥 Collaboration Features
-- **Team Sharing**: Share queries and insights with your team
-- **Query Libraries**: Build and share reusable query templates
-- **Version Control**: Track changes to your queries and dashboards
-- **Comments & Notes**: Add context to your queries and results
-
-## 🛠️ Technology Stack
-
-### Frontend
-- **React 18.3.1** - Modern UI framework with hooks
-- **TypeScript 5.5.3** - Type-safe development
-- **Vite 5.4.1** - Fast build tool and dev server
-- **React Router DOM 6.26.2** - Client-side routing
-- **Tailwind CSS 3.4.11** - Utility-first CSS framework
-
-### UI Components
-- **shadcn/ui** - Beautiful, accessible component library
-- **Radix UI** - Unstyled, accessible UI primitives
-- **Lucide React** - Beautiful & consistent icon toolkit
-- **Sonner** - Toast notifications
-- **Recharts** - Composable charting library
-
-### State Management & Data
-- **TanStack Query** - Powerful data synchronization
-- **React Hook Form** - Performant forms with easy validation
-- **Zod** - TypeScript-first schema validation
-- **Supabase** - Open source Firebase alternative
-
-### Development Tools
-- **ESLint** - Code linting and formatting
-- **TypeScript ESLint** - TypeScript-specific linting rules
-- **PostCSS & Autoprefixer** - CSS processing
-- **Vite** - Fast development and building
-
-## 📦 Installation
-
-### Prerequisites
-- **Node.js** (v18 or higher) - [Download here](https://nodejs.org/)
-- **npm** or **yarn** or **bun** - Package managers
-- **Git** - Version control
-
-### Quick Start
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/gowtham3172004/askql.git
-   cd askql
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   # or
-   yarn install
-   # or
-   bun install
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env.local
-   ```
-   
-   Edit `.env.local` and add your configuration:
-   ```env
-   VITE_SUPABASE_URL=your_supabase_url
-   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
-
-4. **Start the development server**
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   # or
-   bun dev
-   ```
-
-5. **Open your browser**
-   Navigate to [http://localhost:5173](http://localhost:5173)
-
-## 🚀 Available Scripts
-
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server with hot reload |
-| `npm run build` | Build for production |
-| `npm run build:dev` | Build for development |
-| `npm run preview` | Preview production build locally |
-| `npm run lint` | Run ESLint for code quality |
-
-## 📁 Project Structure
+## How it works
 
 ```
-askql/
-├── src/
-│   ├── components/          # Reusable UI components
-│   │   ├── ui/             # shadcn/ui components
-│   │   ├── ChatInterface.tsx
-│   │   ├── DataSourcePanel.tsx
-│   │   └── Navigation.tsx
-│   ├── contexts/           # React contexts for state management
-│   ├── hooks/              # Custom React hooks
-│   ├── integrations/       # Third-party integrations
-│   │   └── supabase/       # Supabase configuration
-│   ├── lib/                # Utility functions
-│   ├── pages/              # Application pages
-│   └── main.tsx           # Application entry point
-├── public/                 # Static assets
-├── supabase/              # Supabase configuration
-└── package.json           # Dependencies and scripts
+ Streamlit UI ─┐                        ┌─ FileSource ── DuckDB (CSV/TSV/Excel/JSON/Parquet)
+               ├─► AskQLService ─► Agent┤
+ FastAPI  ─────┘     │             │    └─ DatabaseSource ── SQLAlchemy (Postgres/MySQL/SQLite)
+                     │             ▼
+              HistoryStore   LangGraph:  generate ─► [SQL guard] ─► execute ─► analyze ─► [grounding check]
+                                            ▲                          │
+                                            └──── repair (DB error) ◄──┘     (bounded: MAX_REPAIR_ATTEMPTS)
+                                   LLMRouter: Groq keys ─► Gemini keys ─► Ollama   (rotate + fail over)
 ```
 
-## 🔧 Configuration
+1. **Schema retrieval** – tables, columns, types, primary/foreign keys and sample values (large schemas are trimmed to
+   the tables relevant to the question plus their FK neighbours).
+2. **SQL generation** – one LLM call returns JSON (`sql` or a chat reply). Follow-ups see the previous SQL.
+3. **SQL guard** – parsed with sqlglot; must be one read-only statement over known tables (details below).
+4. **Execution** – real database / DuckDB, with read-only sessions, timeouts and a row cap. On error the *real* error
+   is fed back to the model for a bounded number of repairs.
+5. **Analysis** – the model summarises the real rows; markdown images/links/HTML are stripped from its output and every
+   number in the answer is checked against the result.
 
-### Environment Variables
-
-Create a `.env.local` file in the root directory:
+## Configure LLMs (`.env`)
 
 ```env
-# Supabase Configuration
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-
-# Optional: Analytics
-VITE_ANALYTICS_ID=your_analytics_id
-
-# Optional: Feature Flags
-VITE_ENABLE_BETA_FEATURES=false
+LLM_PROVIDER_ORDER=groq,gemini,ollama     # priority order; later ones are fallbacks
+GROQ_API_KEYS=gsk_aaa,gsk_bbb             # any number; rotated round-robin
+GEMINI_API_KEYS=AIza...,AIza...
+GEMINI_MODEL=gemini-flash-latest          # Google retires model names; this alias keeps tracking the current Flash
+OLLAMA_BASE_URL=http://localhost:11434    # empty = disabled
 ```
 
-### Database Setup
+Keys within a provider rotate per request; a failing key (rate limit, quota, invalid, outage) falls through to the next
+key and then the next provider. At most `LLM_TRIES_PER_PROVIDER` (default 2) keys per provider are tried per request
+so many keys can't cause minutes of latency. Keys live only in environment variables, are never shown in the UI, and
+are scrubbed from logs and error messages. Full reference: [`.env.example`](.env.example).
 
-1. **Create a Supabase project** at [supabase.com](https://supabase.com)
-2. **Run migrations**:
-   ```bash
-   npx supabase db push
-   ```
-3. **Set up authentication** in your Supabase dashboard
-4. **Configure storage** for file uploads
+**Something not answering?** Click **Test connections** in the sidebar. It pings every configured model and tells you,
+in safe terms, whether a key is rejected, a model name has been retired (set `GEMINI_MODEL` / `GROQ_MODEL`), a quota is
+exhausted, or Ollama is unreachable. The same check is available at `GET /api/llm/check`. When every model fails during a
+question, the chat shows the same per-model reasons.
 
-## 🎯 Usage
+## Quick start
 
-### Getting Started
+```bash
+git clone https://github.com/gowtham3172004/askql.git && cd askql
+python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env                                   # add at least one provider
+streamlit run app/streamlit_app.py                     # click "Demo data" in the sidebar
+```
 
-1. **Navigate to the Chatbot page**
-   - Click "Start Chatting" on the homepage
-   - Or go directly to `/chatbot`
+For local databases (localhost Postgres/MySQL or SQLite files) set `ALLOW_LOCAL_DATABASES=true` in your `.env`.
+It is **`false` by default** because on a public server it would let visitors reach the server's files and internal network.
 
-2. **Connect your data source**
-   - Upload CSV/Excel files
-   - Connect to your database
-   - Or use sample data for testing
+## Security model
 
-3. **Ask questions in natural language**
-   - "Show me all users who signed up last month"
-   - "What's the average order value by category?"
-   - "Find the top 10 customers by revenue"
+| Threat | Mitigation |
+|---|---|
+| LLM writes destructive / escaping SQL | sqlglot guard: single `SELECT`/`WITH` only; no DML/DDL/`SET`/`COPY`/`INTO`/locking; blocks file, system and nested-SQL functions (`pg_*`, `lo_*`, `query_to_xml`, `read_csv`, `load_file`, `sleep`…); only tables that exist in the reflected schema; only the connected schema qualifier; no catalogs, no system schemas |
+| Guard bypass | Defence in depth: Postgres/MySQL sessions are read-only at the server, SQLite `query_only`, DuckDB `enable_external_access=false` (irreversible); statement timeouts on every engine; rows streamed and capped |
+| SSRF via "connect database" | On public deployments: SQLite and URL parameters (`host=`, `unix_socket=`, `sslrootcert=`…) rejected; host must resolve only to **public** IPs; the connection is pinned to the validated IP (DNS-rebinding safe) |
+| Malicious uploads | extension allow-list; size, file-count, row and column caps; xlsx zip-bomb check; parsed in memory, filename never used as a path; DuckDB memory limit |
+| Prompt injection from data → exfiltration | markdown images, link targets, reference definitions and raw HTML are stripped from all LLM text before display |
+| Fabricated numbers | numbers in the summary are matched against result cells/statistics; unmatched ones raise a visible warning |
+| Quota abuse | per-session, per-client-IP and global rate limits; question length cap; API key option |
+| Session mix-up | REST API requires an unguessable `X-Session-Id` (16-64 random chars); source IDs are 128-bit; sources/history are scoped to the session |
+| Secret leakage | keys only in env; labels never contain key fragments; `/health` reveals nothing; settings `repr` hides secrets; logs/errors redacted (keys, `scheme://user:pass@`) |
 
-4. **Review and execute queries**
-   - AI generates SQL queries
-   - Review and modify if needed
-   - Execute to see results
-   - Save queries for future use
+**Still your responsibility:** connect with a **least-privilege, read-only database user**; AskQL's read-only enforcement
+is a second layer, not a replacement. With `LLM_SEND_DATA=true` (default) the schema, sample values and up to 20 result
+rows go to your LLM provider — set `LLM_SEND_DATA=false` or use Ollama for sensitive data.
 
-### Advanced Features
+## REST API
 
-- **Query History**: Access your previous queries and results
-- **Dashboard**: Create custom dashboards with charts
-- **Export Data**: Download results in various formats
-- **Team Collaboration**: Share queries and insights
+```bash
+uvicorn askql.api.app:app --proxy-headers          # docs at http://localhost:8000/docs
+SID=$(python -c "import uuid;print(uuid.uuid4())")  # your session id: keep it secret, it scopes your sources
+curl -X POST localhost:8000/api/sources/files -H "X-Session-Id: $SID" -F files=@sample_data/orders.csv -F files=@sample_data/customers.csv
+curl -X POST localhost:8000/api/ask -H "X-Session-Id: $SID" -H "Content-Type: application/json" \
+     -d '{"source_id": "<id from above>", "question": "Top 5 customers by revenue"}'
+```
 
-## 🤝 Contributing
+Endpoints: `GET /health` · `POST /api/sources/files` · `POST /api/sources/database` · `GET/DELETE /api/sources` ·
+`POST /api/ask` · `GET/DELETE /api/history`. Set `ASKQL_API_KEY` to require `X-API-Key` (health stays open for probes).
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+## Deploy for free
 
-### Development Setup
+> **Always** keep `ALLOW_LOCAL_DATABASES=false` on a public deployment (the Dockerfile pins it), set at least one LLM key,
+> and keep the rate-limit defaults. A public demo without `ASKQL_API_KEY` lets anyone spend your free-tier quota (bounded
+> by the rate limits).
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes
-4. Run tests: `npm run test`
-5. Commit your changes: `git commit -m 'Add amazing feature'`
-6. Push to the branch: `git push origin feature/amazing-feature`
-7. Open a Pull Request
+**A — Streamlit Community Cloud** (no Docker): push to GitHub → [share.streamlit.io](https://share.streamlit.io) → *New app* →
+file `app/streamlit_app.py` → *Advanced → Secrets*: paste `.streamlit/secrets.toml.example` with your keys (top-level
+string values only; they are bridged to environment variables). Choose Python 3.11 or 3.12.
 
-### Code Style
-
-- Follow the existing code style
-- Use TypeScript for all new code
-- Write meaningful commit messages
-- Add tests for new features
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **shadcn/ui** for the beautiful component library
-- **Supabase** for the backend infrastructure
-- **Vite** for the fast development experience
-- **Tailwind CSS** for the utility-first styling
-- **React Query** for efficient data fetching
-
-## 📞 Support
-
-- **Documentation**: [docs.askql.com](#)
-- **Issues**: [GitHub Issues](https://github.com/gowtham3172004/askql/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/gowtham3172004/askql/discussions)
-- **Email**: support@askql.com
-
-## 🔗 Links
-
-- **Website**: [askql.com](#)
-- **Documentation**: [docs.askql.com](#)
-- **API Reference**: [api.askql.com](#)
-- **Community**: [community.askql.com](#)
-
+**B — Hugging Face Spaces (Docker)**: create a Space with SDK *Docker*, push this repo, and put this front-matter at the top
+of the *Space's* `README.md`:
+```yaml
 ---
+title: AskQL
+sdk: docker
+app_port: 7860
+---
+```
+Add `GROQ_API_KEYS` / `GEMINI_API_KEYS` under *Settings → Variables and secrets*.
 
-<div align="center">
+**C — Render**: *New → Blueprint* → select the repo (`render.yaml`). Free instances sleep when idle and have an ephemeral
+disk; set `HISTORY_DB_URL` to a free [Neon](https://neon.tech)/Supabase Postgres to keep history. For the REST API set `APP=api`.
 
-**Made with ❤️ by the AskQL Team**
+**Local Docker**: `docker compose up` → UI `:8501`, API `:8000`; `--profile ollama` adds a local Ollama.
 
-[![GitHub stars](https://img.shields.io/github/stars/gowtham3172004/askql?style=social)](https://github.com/gowtham3172004/askql)
-[![GitHub forks](https://img.shields.io/github/forks/gowtham3172004/askql?style=social)](https://github.com/gowtham3172004/askql)
-[![GitHub issues](https://img.shields.io/github/issues/gowtham3172004/askql)](https://github.com/gowtham3172004/askql/issues)
+## Development & testing
 
-</div>
+```bash
+pip install -r requirements-dev.txt
+pytest -q                                   # unit + security + API + UI tests (no network, no keys needed)
+
+# real-database integration tests (skipped - not passed - when the variables are absent)
+TEST_POSTGRES_URL=postgresql://postgres:pw@127.0.0.1:5432/shop \
+TEST_MYSQL_URL=mysql://root:pw@127.0.0.1:3306/shop pytest tests/test_integration_db.py
+
+# real-LLM integration tests (each provider is skipped unless its credentials are set)
+GROQ_API_KEYS=... GEMINI_API_KEYS=... OLLAMA_BASE_URL=... pytest tests/test_integration_llm.py
+```
+
+CI runs the suite on Python 3.11 and 3.12 with Postgres 16 and MySQL 8.4 service containers, and builds the Docker image.
+
+## The UI
+
+Landing page with a one-click demo dataset and upload/database connectors · schema-derived starter questions · answers as
+card + KPI tiles + **Chart / Table / SQL** tabs · CSV download · follow-up chips · relationship diagram and column
+statistics in *Explore data* · searchable *History* with "Ask again" · responsive down to phone width.
+
+```bash
+# explore the real UI without API keys (stand-in model, real SQL/DuckDB/guard); dev tool only
+streamlit run scripts/ui_preview.py
+pip install playwright && playwright install chromium && python scripts/ui_shots.py   # browser walkthrough + screenshots
+```
+
+## Verification status
+
+See [`docs/VERIFICATION.md`](docs/VERIFICATION.md) for exactly what was run, against what, and what was **not** tested.
+
+## Known limitations
+
+- No user accounts; history and sources are scoped to a browser session (UI) or `X-Session-Id` (API).
+- Sources live in memory (2 h idle expiry, 3 per session, 20 per process); a free host restart drops them.
+- Only SELECT-style analytics. Very large databases rely on schema trimming; there is no vector retrieval.
+- Date strings other than ISO (`YYYY-MM-DD`) stay text rather than being guessed (day/month order is ambiguous).
+- `.xls` (legacy Excel) is not supported — save as `.xlsx`.
+- The grounding check flags numbers it cannot match (e.g. a percentage the model computed itself); it is a warning, not proof of correctness.
+- Database connections to public hosts can use any port; restrict at the network level if that matters.
+
+## License
+
+[MIT](LICENSE)

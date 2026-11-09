@@ -1,0 +1,26 @@
+services:
+  ui:
+    build: .
+    ports: ["8501:7860"]
+    env_file: .env
+    volumes: ["askql-data:/app/data"]
+    environment:
+      HISTORY_DB_URL: sqlite:////app/data/askql_history.db
+  api:
+    build: .
+    ports: ["8000:7860"]
+    env_file: .env
+    environment:
+      APP: api
+      HISTORY_DB_URL: sqlite:////app/data/askql_history.db
+    volumes: ["askql-data:/app/data"]
+  # Optional local LLM:  docker compose --profile ollama up
+  # then set OLLAMA_BASE_URL=http://ollama:11434 in .env and run: docker compose exec ollama ollama pull llama3.1
+  ollama:
+    image: ollama/ollama
+    profiles: ["ollama"]
+    ports: ["11434:11434"]
+    volumes: ["ollama:/root/.ollama"]
+volumes:
+  askql-data:
+  ollama:

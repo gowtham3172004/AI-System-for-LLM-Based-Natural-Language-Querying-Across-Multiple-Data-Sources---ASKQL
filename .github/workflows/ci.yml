@@ -1,0 +1,38 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: { python-version: ["3.11", "3.12"] }
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env: { POSTGRES_PASSWORD: testpw, POSTGRES_DB: shop }
+        ports: ["55433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+      mysql:
+        image: mysql:8.4
+        env: { MYSQL_ROOT_PASSWORD: testpw, MYSQL_DATABASE: shop }
+        ports: ["53307:3306"]
+        options: >-
+          --health-cmd "mysqladmin ping -ptestpw" --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      TEST_POSTGRES_URL: postgresql://postgres:testpw@127.0.0.1:55433/shop
+      TEST_MYSQL_URL: mysql://root:testpw@127.0.0.1:53307/shop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ matrix.python-version }}", cache: pip }
+      - run: pip install -r requirements-dev.txt
+      - run: pytest -q --timeout 120 -rs
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t askql .
+      - name: Smoke test both containers (UI + API)
+        run: bash scripts/docker_smoke.sh askql

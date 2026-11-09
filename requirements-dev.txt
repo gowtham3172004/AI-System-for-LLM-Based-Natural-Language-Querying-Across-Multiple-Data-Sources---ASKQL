@@ -1,0 +1,5 @@
+-r requirements.txt
+pytest>=8
+httpx>=0.27
+pytest-timeout>=2.3
+# optional, for scripts/ui_shots.py:  pip install playwright && playwright install chromium

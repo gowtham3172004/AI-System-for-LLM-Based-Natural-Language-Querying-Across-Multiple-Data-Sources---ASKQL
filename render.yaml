@@ -1,0 +1,16 @@
+# Render Blueprint: https://render.com/docs/blueprint-spec  (free web service)
+services:
+  - type: web
+    name: askql
+    runtime: docker
+    plan: free
+    healthCheckPath: /_stcore/health
+    envVars:
+      - key: GROQ_API_KEYS
+        sync: false
+      - key: GEMINI_API_KEYS
+        sync: false
+      - key: ALLOW_LOCAL_DATABASES
+        value: "false"
+      - key: HISTORY_DB_URL
+        sync: false   # optional: a free Neon/Supabase Postgres URL to keep history across restarts
