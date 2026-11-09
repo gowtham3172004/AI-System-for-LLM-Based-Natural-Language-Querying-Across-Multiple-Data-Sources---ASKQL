@@ -58,7 +58,8 @@ question, the chat shows the same per-model reasons.
 ## Quick start
 
 ```bash
-git clone https://github.com/gowtham3172004/askql.git && cd askql
+git clone https://github.com/gowtham3172004/AI-System-for-LLM-Based-Natural-Language-Querying-Across-Multiple-Data-Sources---ASKQL.git
+cd AI-System-for-LLM-Based-Natural-Language-Querying-Across-Multiple-Data-Sources---ASKQL
 python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env                                   # add at least one provider
